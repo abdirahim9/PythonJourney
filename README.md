@@ -17,3 +17,11 @@ My calc does sums to remainders-math in python is on!
 - 'while count <5': Counts with control-stops at 5.
 - 'print(f"...)': Shows decisions and counts-logic rules!
 My script thinks now-control flow is mine!
+
+# Day 4: Number Guessing Game
+- 'import random': Brings 'random.randint(1,100)'-sets a secret 'target'.
+- 'int(input())': Gets 'guess'-user's number
+- 'if/else': Hints "Too low/high"-guides guesses.
+- 'while play_again.lower() == "y"': Replays-keeps going.
+-'attempts','games_played': Tracks stats-shows skill. 
+My first game-logic and loops!
