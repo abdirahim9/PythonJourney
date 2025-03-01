@@ -25,3 +25,13 @@ My script thinks now-control flow is mine!
 - 'while play_again.lower() == "y"': Replays-keeps going.
 -'attempts','games_played': Tracks stats-shows skill. 
 My first game-logic and loops!
+
+# Day 5: Enhanced Guessing Game
+- 'random.randint(1,100)' : Sets 'target'-random challenge
+- 'while play_again.lower() == "y"': Loops games-replay control.
+- 'while guess != target and attempts < max_attempts': Limits guesses to 10 attempts.
+- 'if guess < target': Guides with "Too low/high"-feedback loop
+- 'score = max_attempts - attempts + 1': Scores by attempts left e.g 9 for 4 guesses.
+- 'total_scores', 'games_played': Tracks wins-stats shine
+- 'avg_attempts = total_attempts /games_played' : Average attempts e.g 3.5
+My game's pro now-limits, scores and stats!
