@@ -35,3 +35,11 @@ My first game-logic and loops!
 - 'total_scores', 'games_played': Tracks wins-stats shine
 - 'avg_attempts = total_attempts /games_played' : Average attempts e.g 3.5
 My game's pro now-limits, scores and stats!
+
+# Day 6: Function-Based Guessing game 
+- 'import random ': Gets 'randint()' -random targets
+- 'def start_game()': Sets up prints welcome, returns 'stats' dict
+- 'def main()': Controls flow-calls, functions, loops with 'play_again'.
+- 'stats[ "score"] +=score': Updates dict in function-tracks totals
+-'if__name__ == "main__": Runs 'main()' standard entry
+Functions make my game modular-code's clean now.
