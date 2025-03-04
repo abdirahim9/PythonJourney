@@ -59,3 +59,12 @@ Lists track guesses, dicts manage stats-data's great!
 - 'sorted (guess_history)': Sorts set for display-e.g [50, 72]
 - 'guess_history = set()': Resets fresh uniques per game
 Tuples look ranges, sets track uniques-data preciseness!
+
+# Day 9: File I/O in Guessing Game
+- 'def load_stats()': Reads 'stats.txt'-loads games, attempts (e.g 3,19).
+- 'with open(..., "r)': Opens file-reads via 'file.read().split(",").
+- 'except FileNotFoundError': Defaults to 0-handles no file case.
+-'def save_stats(stats)': Writes stats-e.g "3,16" to 'stats.txt'.
+- 'with open(..., "w")': Overwrites file saves after each game.
+- 'stats[ "attempts"] = stats.get(...)': Updates dict-safe key access.
+Stats persist acroos runs file I/O understood!
