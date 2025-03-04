@@ -43,3 +43,11 @@ My game's pro now-limits, scores and stats!
 - 'stats[ "score"] +=score': Updates dict in function-tracks totals
 -'if__name__ == "main__": Runs 'main()' standard entry
 Functions make my game modular-code's clean now.
+
+# Day 7: Lists and Dictionaries in Guessing Game (list_dict.py)
+- 'guesses =[]': Empty list-stores each game's guesses.
+- 'guesses.append(guess)': Adds guesses-builds histroy (e.g [50, 80,60,55])
+- 'stats ={"games": 0, ...}: Updates dict-tracks totals.
+- 'guesses[-attempts:]': Slices list shows last game's tries
+- 'guesses =[]': Resets list fresh for next game
+Lists track guesses, dicts manage stats-data's great!
