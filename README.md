@@ -51,3 +51,11 @@ Functions make my game modular-code's clean now.
 - 'guesses[-attempts:]': Slices list shows last game's tries
 - 'guesses =[]': Resets list fresh for next game
 Lists track guesses, dicts manage stats-data's great!
+
+# Day 8: Tuples and Sets in Guessing Game
+- 'ranges= (1,100)': Tuple immutable min/max for randint()'.
+- 'guess_histroy = set()': Set-stores unique guesses (e.g 50, 82)
+- 'random.randint(range[0], ranges[1])': Uses tuple dynamic range
+- 'sorted (guess_history)': Sorts set for display-e.g [50, 72]
+- 'guess_history = set()': Resets fresh uniques per game
+Tuples look ranges, sets track uniques-data preciseness!
