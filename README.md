@@ -68,3 +68,12 @@ Tuples look ranges, sets track uniques-data preciseness!
 - 'with open(..., "w")': Overwrites file saves after each game.
 - 'stats[ "attempts"] = stats.get(...)': Updates dict-safe key access.
 Stats persist acroos runs file I/O understood!
+
+# Day 10: Error Handling in Guessing Game
+- 'try: ... except ValueError': Outer-catches first guess errors (e.g "abc"), skips game
+- 'try:... except ValueError': Inner-catches loop guesses, retries without counting.
+- 'if guess < range [0]': Validates range skips out of bounds (e.g, 0,101)
+- 'except (FileNotFoundError, ValueError, IndexError)':'load stats' handles file issues, defaults to 0.
+- 'raise ValueError ("Invalid stats format")': Flags bad file data e.g "2" instead of "2,6"
+- 'except IOError': save_stats'-logs write fails, game continues.
+Error-proof game-handles all crashes with grace!
