@@ -86,3 +86,12 @@ Error-proof game-handles all crashes with grace!
 - 'play(self)': Handles guessing-updates 'self.player.stats.'
 - 'self' everywhere: Ties data to instances-OOP core!
 First OPP step structured, reusable code!
+
+# Day 12: OOP with API in Weather Game
+- 'class Player': Persists 'self.stats' in 'stats.txt'- file I/O restored
+- 'class WeatherGame': Fetches temp via API-timeout, range checks.
+- 'get weather()': 'timeout=5', catches 'KeyError'-bulletproof API
+- API key: Integrated in main()'-simplified execution.
+- Hint bounds: 'ma/min'-valid hints always
+- 'main()': Validates replay-error-free loop
+Robust weather guessing-OOP + API with integrated key!
