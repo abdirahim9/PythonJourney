@@ -77,3 +77,12 @@ Stats persist acroos runs file I/O understood!
 - 'raise ValueError ("Invalid stats format")': Flags bad file data e.g "2" instead of "2,6"
 - 'except IOError': save_stats'-logs write fails, game continues.
 Error-proof game-handles all crashes with grace!
+
+# Day 11: Intro to OOP with Guessing Game
+- 'class player': Holds self.stats'-encapsulates stats and file I/O.
+- 'def __init__ (self)': Sets initial stats-OOP constructor
+- 'load_stats(slef)':Loads from 'stats.txt'-instance method
+- 'class Game': Runs gameplay-links to 'Player' via 'self.player'.
+- 'play(self)': Handles guessing-updates 'self.player.stats.'
+- 'self' everywhere: Ties data to instances-OOP core!
+First OPP step structured, reusable code!
