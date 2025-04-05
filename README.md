@@ -95,3 +95,11 @@ First OPP step structured, reusable code!
 - Hint bounds: 'ma/min'-valid hints always
 - 'main()': Validates replay-error-free loop
 Robust weather guessing-OOP + API with integrated key!
+
+# Day 13: Algorithms with Sorted Guessing Game
+- `class GuessGame`: Tracks `self.guesses`—OOP with history.
+- `bubble_sort(self, arr)`: Sorts guesses—O(n²) algorithm.
+- `self.guesses.copy()`: Preserves original list—sorted per game.
+- `play()`: Adds guesses, sorts, displays—algorithm meets game.
+- Final sorted history: Full session sorted—clean output.
+First algorithm—bubble sort nailed!
