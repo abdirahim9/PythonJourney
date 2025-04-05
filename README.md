@@ -103,3 +103,11 @@ Robust weather guessing-OOP + API with integrated key!
 - `play()`: Adds guesses, sorts, displays—algorithm meets game.
 - Final sorted history: Full session sorted—clean output.
 First algorithm—bubble sort nailed!
+
+# Day 14: Recursion with Guessing Game (recur_guess.py)
+- `class GuessGame`: Tracks `self.guesses`—OOP foundation.
+- `binary_hint(self, target, low, high, depth)`: Recursive hints—binary search style.
+- `depth > 10`: Base case—prevents stack overflow.
+- `play()`: Integrates hints—smarter guidance.
+- Final history: Unsorted guesses—raw player input.
+Recursion rocks—intelligent hints nails it!
