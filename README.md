@@ -134,3 +134,11 @@
 - `get_stats()`: Fetches live stats—real-time feedback.
 - `__del__()`: Closes connection—clean resource management.
   SQLite persistence—Week 3 capped well!
+
+# Day 16: Unit Testing with Guessing Game
+- `TestGuessGame`: Tests `db_guess.py`—`unittest` suite.
+- `setUp()`: Uses `:memory:` DB—clean test environment.
+- Tests: Table creation, stats updates, win, invalid input, out-of-range.
+- Mocking: `patch` for `randint`, `stdin`, `stdout`—isolates gameplay.
+- `tearDown()`: Closes DB—resource cleanup.
+Testing rigor—`db_guess.py` solid!
