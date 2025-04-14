@@ -1,0 +1,36 @@
+2025-04-14 16:06:48,694 - INFO - Game initialized
+2025-04-14 16:07:58,065 - INFO - Game initialized
+2025-04-14 16:08:20,626 - INFO - Game initialized
+2025-04-14 17:28:44,240 - INFO - Game initialized with range 1-100
+2025-04-14 17:28:44,240 - INFO - New game started, target number: 82
+2025-04-14 17:29:08,701 - INFO - Player guessed: 80
+2025-04-14 17:29:12,055 - INFO - Player guessed: 95
+2025-04-14 17:29:14,272 - INFO - Player guessed: 90
+2025-04-14 17:29:19,153 - INFO - Player guessed: 87
+2025-04-14 17:29:22,178 - INFO - Player guessed: 86
+2025-04-14 17:29:24,086 - INFO - Player guessed: 83
+2025-04-14 17:29:28,931 - INFO - Player guessed: 81
+2025-04-14 17:29:30,791 - INFO - Player guessed: 82
+2025-04-14 17:29:30,795 - INFO - Stats updated: +1 game, +9 attempts
+2025-04-14 17:29:30,795 - INFO - Stats retrieved: 4 games, 31 attempts
+2025-04-14 17:29:30,796 - INFO - Game outcome: Won in 9 tries
+2025-04-14 17:30:26,237 - INFO - New game started, target number: 3
+2025-04-14 17:30:31,937 - INFO - Player guessed: 20
+2025-04-14 17:30:34,324 - INFO - Player guessed: 10
+2025-04-14 17:30:36,254 - INFO - Player guessed: 5
+2025-04-14 17:30:37,969 - INFO - Player guessed: 2
+2025-04-14 17:30:42,021 - INFO - Player guessed: 3
+2025-04-14 17:30:42,026 - INFO - Stats updated: +1 game, +6 attempts
+2025-04-14 17:30:42,026 - INFO - Stats retrieved: 5 games, 37 attempts
+2025-04-14 17:30:42,026 - INFO - Game outcome: Won in 6 tries
+2025-04-14 17:30:45,445 - INFO - Stats retrieved: 5 games, 37 attempts
+2025-04-14 17:30:45,445 - INFO - Session ended
+2025-04-14 17:30:45,446 - INFO - Database connection closed.
+2025-04-14 17:30:56,046 - INFO - Game initialized with range 1-100
+2025-04-14 17:30:56,047 - INFO - New game started, target number: 94
+2025-04-14 17:31:05,895 - ERROR - Invalid initial input: invalid literal for int() with base 10: 'abc'
+2025-04-14 17:31:18,441 - INFO - New game started, target number: 91
+2025-04-14 17:31:21,334 - WARNING - Out-of-range guess: 150
+2025-04-14 17:31:32,455 - INFO - Stats retrieved: 5 games, 37 attempts
+2025-04-14 17:31:32,456 - INFO - Session ended
+2025-04-14 17:31:32,456 - INFO - Database connection closed.

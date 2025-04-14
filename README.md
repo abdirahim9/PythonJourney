@@ -142,3 +142,11 @@
 - Mocking: `patch` for `randint`, `stdin`, `stdout`—isolates gameplay.
 - `tearDown()`: Closes DB—resource cleanup.
 Testing rigor—`db_guess.py` solid!
+
+# Day 17: Logging with Guessing Game (log_guess.py)
+- `GuessGame`: Extends `db_guess.py`—OOP with SQLite, logging.
+- `logging.basicConfig`: Sets `game.log`—INFO level, timestamped.
+- Logs: Initialization, guesses, outcomes, errors, stats updates.
+- Levels: `INFO` for events, `WARNING` for range issues, `ERROR` for invalid inputs.
+- `__del__`: Logs DB closure—clean exit.
+Logging adds debug power—game events clear!
