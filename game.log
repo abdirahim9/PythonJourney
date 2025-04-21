@@ -34,3 +34,60 @@
 2025-04-14 17:31:32,455 - INFO - Stats retrieved: 5 games, 37 attempts
 2025-04-14 17:31:32,456 - INFO - Session ended
 2025-04-14 17:31:32,456 - INFO - Database connection closed.
+2025-04-21 15:49:41,369 - INFO - Game initialized with config from game.ini
+2025-04-21 15:54:59,669 - INFO - Game initialized with config from game.ini
+2025-04-21 18:14:03,159 - INFO - Game initialized with config from game.ini
+2025-04-21 18:14:03,163 - INFO - Stats table checked/created
+2025-04-21 18:14:03,164 - INFO - New game started, target number: 49
+2025-04-21 18:14:50,359 - INFO - Database connection closed
+2025-04-21 18:14:50,537 - INFO - Game initialized with config from game.ini
+2025-04-21 18:14:50,538 - INFO - Stats table checked/created
+2025-04-21 18:14:50,538 - INFO - New game started, target number: 72
+2025-04-21 18:14:54,962 - INFO - Database connection closed
+2025-04-21 18:14:55,110 - INFO - Game initialized with config from game.ini
+2025-04-21 18:14:55,111 - INFO - Stats table checked/created
+2025-04-21 18:14:55,111 - INFO - New game started, target number: 72
+2025-04-21 18:15:06,990 - INFO - Player guessed: 50
+2025-04-21 18:15:09,959 - INFO - Player guessed: 72
+2025-04-21 18:15:09,961 - INFO - Stats updated: +1 game, +2 attempts
+2025-04-21 18:15:09,962 - INFO - Stats retrieved: 6 games, 39 attempts
+2025-04-21 18:15:09,962 - INFO - Game outcome: Won in 2 tries
+2025-04-21 18:15:18,034 - INFO - New game started, target number: 72
+2025-04-21 18:15:20,918 - INFO - Player guessed: 50
+2025-04-21 18:15:26,138 - INFO - Player guessed: 75
+2025-04-21 18:15:26,142 - INFO - Stats updated: +1 game, +2 attempts
+2025-04-21 18:15:26,143 - INFO - Stats retrieved: 7 games, 41 attempts
+2025-04-21 18:15:26,143 - INFO - Game outcome: lost in 2 tries
+2025-04-21 18:15:29,302 - INFO - Player guessed: 72
+2025-04-21 18:15:29,304 - INFO - Stats updated: +1 game, +3 attempts
+2025-04-21 18:15:29,304 - INFO - Stats retrieved: 8 games, 44 attempts
+2025-04-21 18:15:29,305 - INFO - Game outcome: Won in 3 tries
+2025-04-21 18:15:33,124 - INFO - Stats retrieved: 8 games, 44 attempts
+2025-04-21 18:15:33,125 - INFO - Session ended
+2025-04-21 18:15:33,125 - INFO - Database connection closed
+2025-04-21 18:15:40,246 - INFO - Game initialized with config from game.ini
+2025-04-21 18:15:40,248 - INFO - Stats table checked/created
+2025-04-21 18:15:40,248 - INFO - New game started, target number: 72
+2025-04-21 18:15:43,818 - ERROR - Invalid initial guess: invalid literal for int() with base 10: 'abc'
+2025-04-21 18:15:46,370 - INFO - New game started, target number: 72
+2025-04-21 18:15:49,133 - INFO - Player guessed: 150
+2025-04-21 18:15:49,133 - WARNING - Out-of-range guess: 150
+2025-04-21 18:15:52,024 - INFO - Stats retrieved: 8 games, 44 attempts
+2025-04-21 18:15:52,025 - INFO - Session ended
+2025-04-21 18:15:52,025 - INFO - Database connection closed
+2025-04-21 18:17:00,188 - INFO - Game initialized with config from game.ini
+2025-04-21 18:17:00,189 - INFO - Stats table checked/created
+2025-04-21 18:17:00,189 - INFO - New game started, target number: 72
+2025-04-21 18:17:37,909 - INFO - Player guessed: 30
+2025-04-21 18:17:49,438 - INFO - Player guessed: 51
+2025-04-21 18:17:49,439 - WARNING - Out-of-range guess: 51
+2025-04-21 18:17:55,612 - INFO - Stats retrieved: 8 games, 44 attempts
+2025-04-21 18:17:55,613 - INFO - Session ended
+2025-04-21 18:17:55,613 - INFO - Database connection closed
+2025-04-21 18:18:28,956 - INFO - Game initialized with config from game.ini
+2025-04-21 18:18:28,958 - INFO - Stats table checked/created
+2025-04-21 18:18:28,958 - INFO - New game started, target number: 46
+2025-04-21 18:21:03,740 - ERROR - Invalid initial guess: invalid literal for int() with base 10: 'abc'
+2025-04-21 18:21:05,732 - INFO - Stats retrieved: 8 games, 44 attempts
+2025-04-21 18:21:05,733 - INFO - Session ended
+2025-04-21 18:21:05,733 - INFO - Database connection closed
