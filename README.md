@@ -143,10 +143,18 @@
 - `tearDown()`: Closes DB—resource cleanup.
 Testing rigor—`db_guess.py` solid!
 
-# Day 17: Logging with Guessing Game (log_guess.py)
+# Day 17: Logging with Guessing Game
 - `GuessGame`: Extends `db_guess.py`—OOP with SQLite, logging.
 - `logging.basicConfig`: Sets `game.log`—INFO level, timestamped.
 - Logs: Initialization, guesses, outcomes, errors, stats updates.
 - Levels: `INFO` for events, `WARNING` for range issues, `ERROR` for invalid inputs.
 - `__del__`: Logs DB closure—clean exit.
 Logging adds debug power—game events clear!
+
+# Day 18: Configuration with Guessing Game
+- `GuessGame`: Extends `log_guess.py`—OOP with SQLite, logging, config.
+- `configparser`: Loads `game.ini`—range, attempts, DB, log settings.
+- Error Handling: Catches `KeyError`, `ValueError`, `sqlite3.Error`—logs issues.
+- Dynamic Logging: Sets level from `game.ini`—flexible debugging.
+- Validation: Checks `min_range < max_range`—robust config.
+Config-driven game—settings made scalable!
