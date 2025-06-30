@@ -158,3 +158,11 @@ Logging adds debug power—game events clear!
 - Dynamic Logging: Sets level from `game.ini`—flexible debugging.
 - Validation: Checks `min_range < max_range`—robust config.
 Config-driven game—settings made scalable!
+
+# Day 19: CLI with Guessing Game
+- `GuessGame`: Extends `config_guess.py`—OOP with SQLite, logging, config, CLI.
+- `argparse`: Adds `--min`, `--max`, `--attempts`, `--stats`—customizes game.
+- CLI Priority: Overrides `game.ini` settings—flexible control.
+- `show_stats()`: Displays stats for `--stats`—user-friendly.
+- Error Handling: Logs `FileNotFoundError`, `sqlite3.Error`, CLI errors.
+CLI-driven game—ultimate user control!
