@@ -166,3 +166,11 @@ Config-driven game—settings made scalable!
 - `show_stats()`: Displays stats for `--stats`—user-friendly.
 - Error Handling: Logs `FileNotFoundError`, `sqlite3.Error`, CLI errors.
 CLI-driven game—ultimate user control!
+
+# Day 20: Unit Testing with Guessing Game
+- `TestGuessGame`: Tests `cli_guess.py` using `unittest`—covers initialization, CLI args, stats, game logic.
+- `setUp`/`tearDown`: Uses in-memory SQLite DB—clean tests.
+- Mocking: `unittest.mock` for `input`, `print`, `random.randint`—isolates game logic.
+- Tests: Win/lose scenarios, invalid inputs, stats updates, range errors.
+- Assertions: Verifies outputs, DB state, error handling.
+Unit tests ensure rock-solid game reliability!
