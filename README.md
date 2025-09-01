@@ -174,3 +174,11 @@ CLI-driven game—ultimate user control!
 - Tests: Win/lose scenarios, invalid inputs, stats updates, range errors.
 - Assertions: Verifies outputs, DB state, error handling.
 Unit tests ensure rock-solid game reliability!
+
+# Day 21: File Handling with Guessing Game (file_guess.py) - August 30, 2025
+- `GuessGame`: Extends `cli_guess.py`—OOP with SQLite, logging, config, CLI, CSV history.
+- `csv.writer`: Saves game history (timestamp, outcome, attempts, target) to `game_history.csv`.
+- `init_csv()`: Initializes CSV with headers—avoids overwrites.
+- `save_to_csv()`: Logs game results with `datetime` timestamps.
+- Error Handling: Logs `IOError`, `FileNotFoundError`, `sqlite3.Error`, CLI errors.
+CSV persistence adds robust data tracking.
