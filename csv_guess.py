@@ -5,12 +5,22 @@ import logging
 import datetime
 import configparser
 import os
+import argparse
 
 class GuessGame:
-    """A number guessing game with CSV history, SQLite stats, and config file."""
+    """A number guessing game with CSV history, SQLite stats, config file, and CLI args."""
     def __init__(self, config_file="game.ini", min_range=None, max_range=None, max_attempts=None):
-        """Initialize game with config file or CLI args."""
+        """Initialize game with config file or CLI args, prioritizing CLI."""
         self.config_file = config_file
+        
+        # Validate CLI args first
+        if min_range is not None and max_range is not None:
+            if min_range >= max_range:
+                raise ValueError("min_range must be less than max_range")
+        if max_attempts is not None and max_attempts <= 0:
+            raise ValueError("max_attempts must be positive")
+        
+        # Load config file
         config = configparser.ConfigParser()
         if not os.path.exists(config_file):
             raise FileNotFoundError(f"Config file {config_file} not found")
@@ -24,11 +34,11 @@ class GuessGame:
         if missing_keys:
             raise KeyError(f"Missing config keys: {', '.join(missing_keys)}")
         
-        # Get settings from config or CLI args
+        # Use CLI args if provided, else config file
         try:
-            self.min_range = int(config["Game"]["min_range"]) if min_range is None else min_range
-            self.max_range = int(config["Game"]["max_range"]) if max_range is None else max_range
-            self.max_attempts = int(config["Game"]["max_attempts"]) if max_attempts is None else max_attempts
+            self.min_range = min_range if min_range is not None else int(config["Game"]["min_range"])
+            self.max_range = max_range if max_range is not None else int(config["Game"]["max_range"])
+            self.max_attempts = max_attempts if max_attempts is not None else int(config["Game"]["max_attempts"])
         except ValueError:
             raise ValueError("Config values for min_range, max_range, max_attempts must be integers")
         
@@ -191,8 +201,20 @@ class GuessGame:
         pass
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Number Guessing Game")
+    parser.add_argument("--config", default="game.ini", help="Path to config file")
+    parser.add_argument("--min", type=int, help="Minimum range for guessing")
+    parser.add_argument("--max", type=int, help="Maximum range for guessing")
+    parser.add_argument("--attempts", type=int, help="Maximum number of attempts")
+    args = parser.parse_args()
+    
     try:
-        game = GuessGame()
+        game = GuessGame(
+            config_file=args.config,
+            min_range=args.min,
+            max_range=args.max,
+            max_attempts=args.attempts
+        )
         game.play()
     except (FileNotFoundError, ValueError, KeyError) as e:
         print(f"Error: {e}")

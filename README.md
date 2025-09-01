@@ -198,4 +198,11 @@ Robust testing ensures SaaS-ready reliability.
 - Updated `test_file_guess.py` with `logging` import and input mocks for 13 passing tests.
 - Files: `test_game.log`, `test_game_history.csv` verified with config-driven settings.
 - Error Handling: Robust checks for `FileNotFoundError`, `KeyError`, `ValueError`, `sqlite3.Error`, `IOError`.
-SaaS-ready with flexible configuration and reliable testing!
+Flexible configuration and reliable testing!
+
+# Day 24: Command-Line Argument Parsing
+- Enhanced `csv_guess.py` with `argparse` to prioritize CLI args (--config, --min, --max, --attempts) over `game.ini`.
+- Fixed `test_file_guess.py` CLI tests (`test_cli_args`, `test_cli_config_file`, etc.) for 17 passing tests.
+- Files: `test_game.log`, `test_game_history.csv` verified with CLI-driven settings.
+- Error Handling: Early validation of CLI args (`ValueError` for invalid ranges/attempts).
+CLI parsing makes the game flexible!
