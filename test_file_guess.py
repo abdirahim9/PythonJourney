@@ -2,6 +2,7 @@ import unittest
 import sqlite3
 import csv
 import os
+import logging  # Added for test_invalid_log_level
 from unittest.mock import patch, call
 from csv_guess import GuessGame
 
@@ -14,9 +15,10 @@ class TestGuessGame(unittest.TestCase):
         self.history_file = "test_game_history.csv"
         self.log_file = "test_game.log"
         
-        # Reset database by deleting if exists
-        if os.path.exists(self.db_name):
-            os.remove(self.db_name)
+        # Reset database and files
+        for file in [self.db_name, self.history_file, self.log_file]:
+            if os.path.exists(file):
+                os.remove(file)
         
         # Create test config
         with open(self.config_file, "w") as f:
@@ -90,9 +92,9 @@ class TestGuessGame(unittest.TestCase):
         with open(self.history_file, "r") as f:
             reader = csv.reader(f)
             next(reader)  # Skip headers
-            rows = list(reader)  # Read all rows
+            rows = list(reader)
             self.assertGreater(len(rows), 0, "No data rows in CSV")
-            row = rows[-1]  # Get the last row
+            row = rows[-1]
             self.assertEqual(row[1], "Won")
             self.assertEqual(int(row[2]), 1)
             self.assertEqual(int(row[3]), 5)
@@ -109,14 +111,14 @@ class TestGuessGame(unittest.TestCase):
         with open(self.history_file, "r") as f:
             reader = csv.reader(f)
             next(reader)  # Skip headers
-            rows = list(reader)  # Read all rows
+            rows = list(reader)
             self.assertGreater(len(rows), 0, "No data rows in CSV")
-            row = rows[-1]  # Get the last row
+            row = rows[-1]
             self.assertEqual(row[1], "Lost")
             self.assertEqual(int(row[2]), 3)
             self.assertEqual(int(row[3]), 5)
     
-    @patch("builtins.input", side_effect=["abc"])
+    @patch("builtins.input", side_effect=["abc", ""])
     def test_invalid_input(self, mock_input):
         """Test invalid input handling."""
         with patch("builtins.print") as mock_print:
@@ -124,7 +126,7 @@ class TestGuessGame(unittest.TestCase):
             mock_print.assert_any_call("Invalid input! Numbers only. Game skipped.")
             self.assertEqual(self.game.get_stats(), {"games": 0, "attempts": 0})
     
-    @patch("builtins.input", side_effect=["11"])
+    @patch("builtins.input", side_effect=["11", ""])
     def test_out_of_range_guess(self, mock_input):
         """Test out-of-range guess handling."""
         with patch("builtins.print") as mock_print:
@@ -150,6 +152,57 @@ class TestGuessGame(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             GuessGame(config_file=self.config_file)
         self.assertEqual(str(cm.exception), "min_range must be less than max_range")
+    
+    def test_missing_config_file(self):
+        """Test initialization with missing config file."""
+        with self.assertRaises(FileNotFoundError) as cm:
+            GuessGame(config_file="nonexistent.ini")
+        self.assertEqual(str(cm.exception), "Config file nonexistent.ini not found")
+    
+    def test_missing_config_keys(self):
+        """Test initialization with missing config keys."""
+        with open(self.config_file, "w") as f:
+            f.write("[Game]\nmin_range = 1\nmax_range = 10")
+        with self.assertRaises(KeyError) as cm:
+            GuessGame(config_file=self.config_file)
+        self.assertTrue("Missing config keys" in str(cm.exception))
+    
+    def test_invalid_log_level(self):
+        """Test initialization with invalid log level."""
+        with open(self.config_file, "w") as f:
+            f.write(
+                "[Game]\n"
+                "min_range = 1\n"
+                "max_range = 10\n"
+                "max_attempts = 3\n"
+                "db_name = test_guess_stats.db\n"
+                "log_file = test_game.log\n"
+                "log_level = INVALID\n"
+                "history_file = test_game_history.csv\n"
+                "test_db_name = test_guess_stats.db\n"
+                "test_history_file = test_game_history.csv\n"
+            )
+        self.game = GuessGame(config_file=self.config_file)
+        self.assertEqual(logging.getLogger().getEffectiveLevel(), logging.INFO)
+    
+    def test_invalid_config_values(self):
+        """Test initialization with non-integer config values."""
+        with open(self.config_file, "w") as f:
+            f.write(
+                "[Game]\n"
+                "min_range = abc\n"
+                "max_range = 10\n"
+                "max_attempts = 3\n"
+                "db_name = test_guess_stats.db\n"
+                "log_file = test_game.log\n"
+                "log_level = INFO\n"
+                "history_file = test_game_history.csv\n"
+                "test_db_name = test_guess_stats.db\n"
+                "test_history_file = test_game_history.csv\n"
+            )
+        with self.assertRaises(ValueError) as cm:
+            GuessGame(config_file=self.config_file)
+        self.assertEqual(str(cm.exception), "Config values for min_range, max_range, max_attempts must be integers")
     
     def test_stats_display(self):
         """Test stats display functionality."""

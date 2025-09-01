@@ -1,206 +1,199 @@
 import random
 import sqlite3
-import logging
-import configparser
-import argparse
 import csv
+import logging
 import datetime
+import configparser
+import os
 
 class GuessGame:
-    """Manages a number guessing game with SQLite stats, logging, config, CLI, and CSV history."""
-    def __init__(self, config_file: str = "game.ini", min_range: int | None = None, 
-                max_range: int | None = None, max_attempts: int | None = None):
-        # Load config
+    """A number guessing game with CSV history, SQLite stats, and config file."""
+    def __init__(self, config_file="game.ini", min_range=None, max_range=None, max_attempts=None):
+        """Initialize game with config file or CLI args."""
+        self.config_file = config_file
         config = configparser.ConfigParser()
+        if not os.path.exists(config_file):
+            raise FileNotFoundError(f"Config file {config_file} not found")
+        config.read(config_file)
+        
+        # Validate config section and keys
+        if "Game" not in config:
+            raise ValueError("Config file missing [Game] section")
+        required_keys = ["min_range", "max_range", "max_attempts", "db_name", "log_file", "log_level", "history_file"]
+        missing_keys = [key for key in required_keys if key not in config["Game"]]
+        if missing_keys:
+            raise KeyError(f"Missing config keys: {', '.join(missing_keys)}")
+        
+        # Get settings from config or CLI args
         try:
-            if not config.read(config_file):
-                raise FileNotFoundError(f"Config file {config_file} not found")
-            self.ranges = (
-                int(min_range if min_range is not None else config["Game"]["min_range"]),
-                int(max_range if max_range is not None else config["Game"]["max_range"])
-            )
-            self.max_attempts = int(max_attempts if max_attempts is not None else config["Game"]["max_attempts"])
-            self.db_name = config["Game"]["db_name"]
-            self.log_file = config["Game"]["log_file"]
-            self.history_file = config["Game"]["history_file"]
-            log_level = config["Game"]["log_level"].upper()
-        except (KeyError, ValueError, FileNotFoundError) as e:
-            logging.error("Config error: %s", e)
-            raise
-        # Validate ranges
-        if self.ranges[0] >= self.ranges[1]:
-            logging.error("Invalid range: min_range >= max_range")
+            self.min_range = int(config["Game"]["min_range"]) if min_range is None else min_range
+            self.max_range = int(config["Game"]["max_range"]) if max_range is None else max_range
+            self.max_attempts = int(config["Game"]["max_attempts"]) if max_attempts is None else max_attempts
+        except ValueError:
+            raise ValueError("Config values for min_range, max_range, max_attempts must be integers")
+        
+        self.db_name = config["Game"]["db_name"]
+        self.log_file = config["Game"]["log_file"]
+        self.log_level = config["Game"]["log_level"]
+        self.history_file = config["Game"]["history_file"]
+        
+        # Validate ranges and attempts
+        if self.min_range >= self.max_range:
             raise ValueError("min_range must be less than max_range")
+        if self.max_attempts <= 0:
+            raise ValueError("max_attempts must be positive")
+        
+        self.ranges = (self.min_range, self.max_range)
+        self.target = None
+        self.attempts = 0
+        
         # Setup logging
-        log_levels = {
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR
-        }
-        logging.basicConfig(
-            filename=self.log_file,
-            level=log_levels.get(log_level, logging.INFO),
-            format="%(asctime)s - %(levelname)s - %(message)s"
-        )
-        logging.info("Game initialized with config %s, CLI args: min=%s, max=%s, attempts=%s",
-                     config_file, min_range, max_range, max_attempts)
-        # Setup database
         try:
-            self.conn = sqlite3.connect(self.db_name)
-            self.cursor = self.conn.cursor()
-            self.create_table()
-        except sqlite3.Error as e:
-            logging.error("Database connection error: %s", e)
-            raise
-        # Setup CSV
+            logging.basicConfig(
+                filename=self.log_file,
+                level=getattr(logging, self.log_level, logging.INFO),
+                format="%(asctime)s %(levelname)s %(message)s"
+            )
+        except ValueError:
+            logging.basicConfig(
+                filename=self.log_file,
+                level=logging.INFO,
+                format="%(asctime)s %(levelname)s %(message)s"
+            )
+            logging.warning(f"Invalid log_level {self.log_level}, defaulting to INFO")
+        
+        logging.info(f"Game initialized with config {config_file}, CLI args: min={min_range}, max={max_range}, attempts={max_attempts}")
+        
         self.init_csv()
+        self.create_table()
     
     def init_csv(self):
         """Initialize CSV file with headers if it doesn't exist."""
-        try:
-            with open(self.history_file, mode="a", newline="") as f:
+        if not os.path.exists(self.history_file):
+            with open(self.history_file, "w", newline="") as f:
                 writer = csv.writer(f)
-                f.seek(0)
-                if f.tell() == 0:
-                    writer.writerow(["Timestamp", "Outcome", "Attempts", "Target"])
-            logging.info("CSV file %s initialized", self.history_file)
-        except IOError as e:
-            logging.error("CSV initialization error: %s", e)
-            raise
-    
-    def save_to_csv(self, outcome: str, attempts: int, target: int):
-        """Save game result to CSV."""
-        try:
-            with open(self.history_file, mode="a", newline="") as f:
-                writer = csv.writer(f)
-                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                writer.writerow([timestamp, outcome, attempts, target])
-            logging.info("Game saved to CSV: %s, %s, %s", outcome, attempts, target)
-        except IOError as e:
-            logging.error("CSV write error: %s", e)
-            raise
+                writer.writerow(["Timestamp", "Outcome", "Attempts", "Target"])
+            logging.info(f"CSV file {self.history_file} initialized")
     
     def create_table(self):
-        """Create stats table if it doesn't exist."""
+        """Create SQLite stats table if it doesn't exist."""
         try:
-            self.cursor.execute("""
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS stats (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    games INTEGER DEFAULT 0,
-                    attempts INTEGER DEFAULT 0
+                    id INTEGER PRIMARY KEY,
+                    games INTEGER,
+                    attempts INTEGER
                 )
             """)
-            self.conn.commit()
-            self.cursor.execute("SELECT COUNT(*) FROM stats")
-            if self.cursor.fetchone()[0] == 0:
-                self.cursor.execute("INSERT INTO stats (games, attempts) VALUES (0, 0)")
-                self.conn.commit()
+            cursor.execute("INSERT OR IGNORE INTO stats (id, games, attempts) VALUES (1, 0, 0)")
+            conn.commit()
+            conn.close()
             logging.info("Stats table checked/created")
         except sqlite3.Error as e:
-            logging.error("Database error: %s", e)
+            logging.error(f"Database error: {e}")
             raise
     
-    def update_stats(self, attempts: int):
-        """Update games and attempts in the database."""
+    def update_stats(self, attempts):
+        """Update game stats in SQLite."""
         try:
-            self.cursor.execute("UPDATE stats SET games = games + 1, attempts = attempts + ? WHERE id = 1", (attempts,))
-            self.conn.commit()
-            logging.info("Stats updated: +1 game, +%s attempts", attempts)
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("UPDATE stats SET games = games + 1, attempts = attempts + ? WHERE id = 1", (attempts,))
+            conn.commit()
+            conn.close()
+            logging.info(f"Stats updated: +1 game, +{attempts} attempts")
         except sqlite3.Error as e:
-            logging.error("Stats update error: %s", e)
+            logging.error(f"Database error: {e}")
             raise
     
     def get_stats(self):
-        """Fetch current stats from the database."""
+        """Retrieve game stats from SQLite."""
         try:
-            self.cursor.execute("SELECT games, attempts FROM stats WHERE id = 1")
-            games, attempts = self.cursor.fetchone()
-            logging.info("Stats retrieved: %s games, %s attempts", games, attempts)
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("SELECT games, attempts FROM stats WHERE id = 1")
+            games, attempts = cursor.fetchone()
+            conn.close()
             return {"games": games, "attempts": attempts}
         except sqlite3.Error as e:
-            logging.error("Stats retrieval error: %s", e)
+            logging.error(f"Database error: {e}")
+            raise
+    
+    def save_game(self, outcome, attempts, target):
+        """Save game result to CSV."""
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(self.history_file, "a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow([timestamp, outcome, attempts, target])
+            logging.info(f"Game saved to CSV: {outcome}, {attempts}, {target}")
+        except IOError as e:
+            logging.error(f"CSV write error: {e}")
             raise
     
     def show_stats(self):
-        """Display current stats."""
+        """Display game stats."""
         stats = self.get_stats()
         print(f"\nStats: {stats['games']} games played, {stats['attempts']} total attempts")
-        logging.info("Stats displayed")
     
     def play(self):
-        """Run a game round, update stats, and save to CSV."""
-        target = random.randint(self.ranges[0], self.ranges[1])
-        logging.info("New game started, target: %s", target)
-        print(f"\nGuess a number between {self.ranges[0]} and {self.ranges[1]}!")
+        """Run the guessing game."""
         try:
-            guess = int(input("Your guess: "))
-            logging.info("Player guessed: %s", guess)
-            if guess < self.ranges[0] or guess > self.ranges[1]:
-                print(f"Guess must be between {self.ranges[0]} and {self.ranges[1]}!")
-                logging.warning("Out-of-range guess: %s", guess)
-                return
-            attempts = 1
-            while guess != target and attempts < self.max_attempts:
-                print("Too low!" if guess < target else "Too high!")
+            self.target = random.randint(self.min_range, self.max_range)
+            self.attempts = 0
+            logging.info(f"New game started, target: {self.target}")
+            
+            print(f"Guess a number between {self.min_range} and {self.max_range}!")
+            
+            while self.attempts < self.max_attempts:
                 try:
-                    guess = int(input("Try again: "))
-                    logging.info("Player guessed: %s", guess)
-                    if guess < self.ranges[0] or guess > self.ranges[1]:
-                        print(f"Guess must be between {self.ranges[0]} and {self.ranges[1]}!")
-                        logging.warning("Out-of-range guess: %s", guess)
+                    guess_input = input("Enter your guess: ")
+                    if not guess_input:  # Handle empty input
+                        print("Game skipped due to empty input.")
+                        logging.info("Game skipped: empty input")
                         return
-                    attempts += 1
-                except ValueError as e:
-                    print("Invalid input! Numbers only.")
-                    logging.error("Invalid guess input: %s", e)
-                    return
-            outcome = "Won" if guess == target else "Lost"
-            self.update_stats(attempts)
-            self.save_to_csv(outcome, attempts, target)
-            stats = self.get_stats()
-            print(f"Outcome: {outcome} in {attempts} tries. Target was {target}")
-            print(f"Current stats: {stats['games']} games, {stats['attempts']} attempts")
-            logging.info("Game ended: %s in %s tries", outcome, attempts)
-        except ValueError as e:
-            print("Invalid input! Numbers only. Game skipped.")
-            logging.error("Invalid initial guess: %s", e)
+                    guess = int(guess_input)
+                    self.attempts += 1
+                    logging.info(f"Player guessed: {guess}")
+                    
+                    if guess < self.min_range or guess > self.max_range:
+                        print(f"Guess must be between {self.min_range} and {self.max_range}!")
+                        logging.info(f"Invalid guess {guess}, out of range")
+                        return  # Exit on invalid range
+                    if guess == self.target:
+                        print(f"Outcome: Won in {self.attempts} tries. Target was {self.target}")
+                        self.update_stats(self.attempts)
+                        self.save_game("Won", self.attempts, self.target)
+                        break
+                    elif guess < self.target:
+                        print("Too low!")
+                    else:
+                        print("Too high!")
+                except ValueError:
+                    print("Invalid input! Numbers only. Game skipped.")
+                    logging.info("Game skipped: invalid input")
+                    return  # Exit on invalid input
+            
+            if self.attempts >= self.max_attempts and guess != self.target:
+                print(f"Outcome: Lost in {self.attempts} tries. Target was {self.target}")
+                self.update_stats(self.attempts)
+                self.save_game("Lost", self.attempts, self.target)
+            
+            print(f"Current stats: {self.get_stats()['games']} games, {self.get_stats()['attempts']} attempts")
+        except Exception as e:
+            logging.error(f"Game error: {e}")
+            raise
     
     def __del__(self):
-        """Close database connection."""
-        try:
-            self.conn.close()
-            logging.info("Database connection closed")
-        except AttributeError:
-            pass
-
-def main():
-    """Main game loop with CLI args."""
-    parser = argparse.ArgumentParser(description="Number guessing game with CSV history")
-    parser.add_argument("--min", type=int, help="Minimum range value")
-    parser.add_argument("--max", type=int, help="Maximum range value")
-    parser.add_argument("--attempts", type=int, help="Maximum attempts allowed")
-    parser.add_argument("--stats", action="store_true", help="Show stats and exit")
-    try:
-        args = parser.parse_args()
-        game = GuessGame(min_range=args.min, max_range=args.max, max_attempts=args.attempts)
-        if args.stats:
-            game.show_stats()
-            return
-        play_again = "y"
-        while play_again.lower() == "y":
-            game.play()
-            play_again = input("Play again? (y/n): ").strip()
-            if play_again.lower() not in ["y", "n"]:
-                print("Invalid input! Assuming 'n'.")
-                logging.warning("Invalid replay input: %s", play_again)
-                play_again = "n"
-        stats = game.get_stats()
-        print(f"\nFinal stats: {stats['games']} games, {stats['attempts']} attempts")
-        logging.info("Session ended")
-    except Exception as e:
-        logging.error("Main loop error: %s", e)
-        raise
+        """Clean up database connection."""
+        pass
 
 if __name__ == "__main__":
-    main()
+    try:
+        game = GuessGame()
+        game.play()
+    except (FileNotFoundError, ValueError, KeyError) as e:
+        print(f"Error: {e}")
+        logging.error(f"Startup error: {e}")
