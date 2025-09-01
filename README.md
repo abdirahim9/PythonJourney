@@ -206,3 +206,10 @@ Flexible configuration and reliable testing!
 - Files: `test_game.log`, `test_game_history.csv` verified with CLI-driven settings.
 - Error Handling: Early validation of CLI args (`ValueError` for invalid ranges/attempts).
 CLI parsing makes the game flexible!
+
+# Day 25: JSON Configuration Support 
+- Added JSON config support to `csv_guess.py`, prioritizing CLI, JSON, then INI configs.
+- Created `game.json`, updated `test_file_guess.py` with 20 tests, including `test_json_config_initialization`.
+- Files: `test_game.json.log`, `test_game_history.json.csv` verified with JSON-driven settings.
+- Error Handling: Added `JSONDecodeError`, validated JSON keys and values.
+JSON support enhances flexibility and modern config options!

@@ -4,13 +4,14 @@ import csv
 import logging
 import datetime
 import configparser
+import json
 import os
 import argparse
 
 class GuessGame:
-    """A number guessing game with CSV history, SQLite stats, config file, and CLI args."""
+    """A number guessing game with CSV history, SQLite stats, INI/JSON config, and CLI args."""
     def __init__(self, config_file="game.ini", min_range=None, max_range=None, max_attempts=None):
-        """Initialize game with config file or CLI args, prioritizing CLI."""
+        """Initialize game with config file (INI or JSON) or CLI args, prioritizing CLI, then JSON, then INI."""
         self.config_file = config_file
         
         # Validate CLI args first
@@ -20,15 +21,30 @@ class GuessGame:
         if max_attempts is not None and max_attempts <= 0:
             raise ValueError("max_attempts must be positive")
         
-        # Load config file
-        config = configparser.ConfigParser()
-        if not os.path.exists(config_file):
-            raise FileNotFoundError(f"Config file {config_file} not found")
-        config.read(config_file)
+        # Initialize config
+        config = {}
         
-        # Validate config section and keys
-        if "Game" not in config:
-            raise ValueError("Config file missing [Game] section")
+        # Load config file (INI or JSON)
+        if config_file.endswith(".json"):
+            try:
+                with open(config_file, "r") as f:
+                    config = json.load(f)
+                if "Game" not in config:
+                    raise ValueError("JSON config file missing 'Game' section")
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Invalid JSON in {config_file}: {e}")
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Config file {config_file} not found")
+        else:
+            config_parser = configparser.ConfigParser()
+            if not os.path.exists(config_file):
+                raise FileNotFoundError(f"Config file {config_file} not found")
+            config_parser.read(config_file)
+            if "Game" not in config_parser:
+                raise ValueError("INI config file missing [Game] section")
+            config = {"Game": dict(config_parser["Game"])}
+        
+        # Validate config keys
         required_keys = ["min_range", "max_range", "max_attempts", "db_name", "log_file", "log_level", "history_file"]
         missing_keys = [key for key in required_keys if key not in config["Game"]]
         if missing_keys:
@@ -202,7 +218,7 @@ class GuessGame:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Number Guessing Game")
-    parser.add_argument("--config", default="game.ini", help="Path to config file")
+    parser.add_argument("--config", default="game.ini", help="Path to config file (INI or JSON)")
     parser.add_argument("--min", type=int, help="Minimum range for guessing")
     parser.add_argument("--max", type=int, help="Maximum range for guessing")
     parser.add_argument("--attempts", type=int, help="Maximum number of attempts")
@@ -216,6 +232,6 @@ if __name__ == "__main__":
             max_attempts=args.attempts
         )
         game.play()
-    except (FileNotFoundError, ValueError, KeyError) as e:
+    except (FileNotFoundError, ValueError, KeyError, json.JSONDecodeError) as e:
         print(f"Error: {e}")
         logging.error(f"Startup error: {e}")

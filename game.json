@@ -1,0 +1,13 @@
+{
+    "Game": {
+      "min_range": 1,
+      "max_range": 50,
+      "max_attempts": 8,
+      "db_name": "guess_stats.json.db",
+      "log_file": "game.json.log",
+      "log_level": "INFO",
+      "history_file": "game_history.json.csv",
+      "test_db_name": "test_guess_stats.json.db",
+      "test_history_file": "test_game_history.json.csv"
+    }
+  }

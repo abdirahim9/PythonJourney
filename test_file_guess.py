@@ -3,6 +3,7 @@ import sqlite3
 import csv
 import os
 import logging
+import json
 from unittest.mock import patch, call
 from csv_guess import GuessGame
 
@@ -11,16 +12,18 @@ class TestGuessGame(unittest.TestCase):
     def setUp(self):
         """Set up config, DB, and CSV for testing in project directory."""
         self.config_file = "test_game.ini"
+        self.json_config_file = "test_game.json"
         self.db_name = "test_guess_stats.db"
         self.history_file = "test_game_history.csv"
         self.log_file = "test_game.log"
         
         # Reset database and files
-        for file in [self.db_name, self.history_file, self.log_file]:
+        for file in [self.db_name, self.history_file, self.log_file, 
+                    "test_guess_stats.json.db", "test_game_history.json.csv", "test_game.json.log"]:
             if os.path.exists(file):
                 os.remove(file)
         
-        # Create test config
+        # Create test INI config
         with open(self.config_file, "w") as f:
             f.write(
                 "[Game]\n"
@@ -37,13 +40,29 @@ class TestGuessGame(unittest.TestCase):
                     self.db_name, self.history_file
                 )
             )
+        
+        # Create test JSON config
+        with open(self.json_config_file, "w") as f:
+            json.dump({
+                "Game": {
+                    "min_range": 5,
+                    "max_range": 15,
+                    "max_attempts": 4,
+                    "db_name": "test_guess_stats.json.db",
+                    "log_file": "test_game.json.log",
+                    "log_level": "INFO",
+                    "history_file": "test_game_history.json.csv",
+                    "test_db_name": "test_guess_stats.json.db",
+                    "test_history_file": "test_game_history.json.csv"
+                }
+            }, f)
     
     def tearDown(self):
         """Close DB, keep files for inspection."""
         pass
     
     def test_initialization(self):
-        """Test game initialization with config and CLI args."""
+        """Test game initialization with INI config and CLI args."""
         game = GuessGame(config_file=self.config_file, min_range=1, max_range=10, max_attempts=3)
         self.assertEqual(game.ranges, (1, 10))
         self.assertEqual(game.max_attempts, 3)
@@ -129,7 +148,7 @@ class TestGuessGame(unittest.TestCase):
             self.assertEqual(game.get_stats(), {"games": 0, "attempts": 0})
     
     def test_invalid_config(self):
-        """Test initialization with invalid config."""
+        """Test initialization with invalid INI config."""
         with open(self.config_file, "w") as f:
             f.write(
                 "[Game]\n"
@@ -154,7 +173,7 @@ class TestGuessGame(unittest.TestCase):
         self.assertEqual(str(cm.exception), "Config file nonexistent.ini not found")
     
     def test_missing_config_keys(self):
-        """Test initialization with missing config keys."""
+        """Test initialization with missing INI config keys."""
         with open(self.config_file, "w") as f:
             f.write("[Game]\nmin_range = 1\nmax_range = 10")
         with self.assertRaises(KeyError) as cm:
@@ -180,7 +199,7 @@ class TestGuessGame(unittest.TestCase):
         self.assertEqual(logging.getLogger().getEffectiveLevel(), logging.INFO)
     
     def test_invalid_config_values(self):
-        """Test initialization with non-integer config values."""
+        """Test initialization with non-integer INI config values."""
         with open(self.config_file, "w") as f:
             f.write(
                 "[Game]\n"
@@ -215,7 +234,7 @@ class TestGuessGame(unittest.TestCase):
     
     @patch("sys.argv", ["csv_guess.py", "--config", "custom.ini"])
     def test_cli_config_file(self):
-        """Test CLI config file override."""
+        """Test CLI INI config file override."""
         with open("custom.ini", "w") as f:
             f.write(
                 "[Game]\n"
@@ -248,6 +267,39 @@ class TestGuessGame(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             GuessGame(config_file=self.config_file, max_attempts=-1)
         self.assertEqual(str(cm.exception), "max_attempts must be positive")
+    
+    def test_json_config_initialization(self):
+        """Test initialization with JSON config."""
+        game = GuessGame(config_file=self.json_config_file)
+        self.assertEqual(game.ranges, (5, 15))
+        self.assertEqual(game.max_attempts, 4)
+        self.assertEqual(game.db_name, "test_guess_stats.json.db")
+        self.assertEqual(game.history_file, "test_game_history.json.csv")
+    
+    def test_invalid_json_config(self):
+        """Test initialization with invalid JSON config."""
+        with open(self.json_config_file, "w") as f:
+            f.write("{invalid json}")
+        with self.assertRaises(ValueError) as cm:
+            GuessGame(config_file=self.json_config_file)
+        self.assertTrue("Invalid JSON" in str(cm.exception))
+    
+    def test_missing_json_config_keys(self):
+        """Test initialization with missing JSON config keys."""
+        with open(self.json_config_file, "w") as f:
+            json.dump({"Game": {"min_range": 5, "max_range": 15}}, f)
+        with self.assertRaises(KeyError) as cm:
+            GuessGame(config_file=self.json_config_file)
+        self.assertTrue("Missing config keys" in str(cm.exception))
+    
+    @patch("sys.argv", ["csv_guess.py", "--config", "test_game.json"])
+    def test_cli_json_config_file(self):
+        """Test CLI JSON config file override."""
+        game = GuessGame(config_file=self.json_config_file)
+        self.assertEqual(game.ranges, (5, 15))
+        self.assertEqual(game.max_attempts, 4)
+        self.assertEqual(game.db_name, "test_guess_stats.json.db")
+        self.assertEqual(game.history_file, "test_game_history.json.csv")
 
 if __name__ == "__main__":
     unittest.main()
