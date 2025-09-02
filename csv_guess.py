@@ -9,7 +9,7 @@ import os
 import argparse
 
 class GuessGame:
-    """A number guessing game with CSV history, SQLite stats, INI/JSON config, and CLI args."""
+    """A number guessing game with CSV history, SQLite stats/high scores, INI/JSON config, and CLI args."""
     def __init__(self, config_file="game.ini", min_range=None, max_range=None, max_attempts=None):
         """Initialize game with config file (INI or JSON) or CLI args, prioritizing CLI, then JSON, then INI."""
         self.config_file = config_file
@@ -91,7 +91,7 @@ class GuessGame:
         logging.info(f"Game initialized with config {config_file}, CLI args: min={min_range}, max={max_range}, attempts={max_attempts}")
         
         self.init_csv()
-        self.create_table()
+        self.create_tables()
     
     def init_csv(self):
         """Initialize CSV file with headers if it doesn't exist."""
@@ -101,8 +101,8 @@ class GuessGame:
                 writer.writerow(["Timestamp", "Outcome", "Attempts", "Target"])
             logging.info(f"CSV file {self.history_file} initialized")
     
-    def create_table(self):
-        """Create SQLite stats table if it doesn't exist."""
+    def create_tables(self):
+        """Create SQLite stats and high_scores tables if they don't exist."""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -113,10 +113,18 @@ class GuessGame:
                     attempts INTEGER
                 )
             """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS high_scores (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    player_name TEXT,
+                    attempts INTEGER,
+                    timestamp TEXT
+                )
+            """)
             cursor.execute("INSERT OR IGNORE INTO stats (id, games, attempts) VALUES (1, 0, 0)")
             conn.commit()
             conn.close()
-            logging.info("Stats table checked/created")
+            logging.info("Stats and high_scores tables checked/created")
         except sqlite3.Error as e:
             logging.error(f"Database error: {e}")
             raise
@@ -132,6 +140,55 @@ class GuessGame:
             logging.info(f"Stats updated: +1 game, +{attempts} attempts")
         except sqlite3.Error as e:
             logging.error(f"Database error: {e}")
+            raise
+    
+    def save_high_score(self, player_name, attempts):
+        """Save high score to SQLite if it's a win."""
+        try:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            cursor.execute(
+                "INSERT INTO high_scores (player_name, attempts, timestamp) VALUES (?, ?, ?)",
+                (player_name, attempts, timestamp)
+            )
+            conn.commit()
+            conn.close()
+            logging.info(f"High score saved: {player_name}, {attempts} attempts")
+        except sqlite3.Error as e:
+            logging.error(f"Database error: {e}")
+            raise
+    
+    def get_high_scores(self, limit=5):
+        """Retrieve top high scores from SQLite."""
+        try:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT player_name, attempts, timestamp FROM high_scores ORDER BY attempts ASC, timestamp DESC LIMIT ?",
+                (limit,)
+            )
+            scores = cursor.fetchall()
+            conn.close()
+            return [{"player_name": row[0], "attempts": row[1], "timestamp": row[2]} for row in scores]
+        except sqlite3.Error as e:
+            logging.error(f"Database error: {e}")
+            raise
+    
+    def show_leaderboard(self):
+        """Display top 5 high scores."""
+        try:
+            scores = self.get_high_scores()
+            if not scores:
+                print("No high scores yet.")
+                return
+            print("Leaderboard (Top 5):")
+            print("Rank | Player | Attempts | Timestamp")
+            print("-" * 40)
+            for i, score in enumerate(scores, 1):
+                print(f"{i} | {score['player_name']} | {score['attempts']} | {score['timestamp']}")
+        except Exception as e:
+            logging.error(f"Leaderboard error: {e}")
             raise
     
     def get_stats(self):
@@ -167,47 +224,54 @@ class GuessGame:
     def play(self):
         """Run the guessing game."""
         try:
+            player_name = input("Enter your name: ").strip()
+            if not player_name:
+                player_name = "Anonymous"
+                logging.info("No player name provided, using 'Anonymous'")
+            
             self.target = random.randint(self.min_range, self.max_range)
             self.attempts = 0
-            logging.info(f"New game started, target: {self.target}")
+            logging.info(f"New game started, target: {self.target}, player: {player_name}")
             
             print(f"Guess a number between {self.min_range} and {self.max_range}!")
             
             while self.attempts < self.max_attempts:
                 try:
                     guess_input = input("Enter your guess: ")
-                    if not guess_input:  # Handle empty input
+                    if not guess_input:
                         print("Game skipped due to empty input.")
                         logging.info("Game skipped: empty input")
                         return
                     guess = int(guess_input)
                     self.attempts += 1
-                    logging.info(f"Player guessed: {guess}")
+                    logging.info(f"Player {player_name} guessed: {guess}")
                     
                     if guess < self.min_range or guess > self.max_range:
                         print(f"Guess must be between {self.min_range} and {self.max_range}!")
                         logging.info(f"Invalid guess {guess}, out of range")
-                        return  # Exit on invalid range
+                        return
                     if guess == self.target:
-                        print(f"Outcome: Won in {self.attempts} tries. Target was {self.target}")
+                        print(f"Congratulations! You won in {self.attempts} tries. Target was {self.target}.")
                         self.update_stats(self.attempts)
                         self.save_game("Won", self.attempts, self.target)
+                        self.save_high_score(player_name, self.attempts)
                         break
                     elif guess < self.target:
                         print("Too low!")
                     else:
                         print("Too high!")
                 except ValueError:
-                    print("Invalid input! Numbers only. Game skipped.")
+                    print("Invalid input! Please enter a number. Game skipped.")
                     logging.info("Game skipped: invalid input")
-                    return  # Exit on invalid input
+                    return
             
             if self.attempts >= self.max_attempts and guess != self.target:
-                print(f"Outcome: Lost in {self.attempts} tries. Target was {self.target}")
+                print(f"Game over! You lost after {self.attempts} tries. The target was {self.target}.")
                 self.update_stats(self.attempts)
                 self.save_game("Lost", self.attempts, self.target)
             
-            print(f"Current stats: {self.get_stats()['games']} games, {self.get_stats()['attempts']} attempts")
+            self.show_stats()
+            self.show_leaderboard()
         except Exception as e:
             logging.error(f"Game error: {e}")
             raise

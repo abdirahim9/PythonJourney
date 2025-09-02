@@ -84,12 +84,14 @@ class TestGuessGame(unittest.TestCase):
         cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='stats'")
         self.assertIsNotNone(cursor.fetchone())
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='high_scores'")
+        self.assertIsNotNone(cursor.fetchone())
         cursor.execute("SELECT games, attempts FROM stats WHERE id = 1")
         stats = cursor.fetchone()
         self.assertEqual(stats, (0, 0))
         conn.close()
     
-    @patch("builtins.input", side_effect=["5", "5"])
+    @patch("builtins.input", side_effect=["Alice", "5", "5"])
     @patch("random.randint", return_value=5)
     def test_play_win(self, mock_randint, mock_input):
         """Test a winning game scenario."""
@@ -97,8 +99,8 @@ class TestGuessGame(unittest.TestCase):
         with patch("builtins.print") as mock_print:
             game.play()
             self.assertEqual(game.get_stats(), {"games": 1, "attempts": 1})
-            mock_print.assert_any_call("Outcome: Won in 1 tries. Target was 5")
-            mock_print.assert_any_call("Current stats: 1 games, 1 attempts")
+            mock_print.assert_any_call("Congratulations! You won in 1 tries. Target was 5.")
+            mock_print.assert_any_call("Leaderboard (Top 5):")
         with open(self.history_file, "r") as f:
             reader = csv.reader(f)
             next(reader)  # Skip headers
@@ -109,7 +111,7 @@ class TestGuessGame(unittest.TestCase):
             self.assertEqual(int(row[2]), 1)
             self.assertEqual(int(row[3]), 5)
     
-    @patch("builtins.input", side_effect=["1", "2", "3"])
+    @patch("builtins.input", side_effect=["Bob", "1", "2", "3"])
     @patch("random.randint", return_value=5)
     def test_play_lose(self, mock_randint, mock_input):
         """Test a losing game scenario."""
@@ -117,8 +119,8 @@ class TestGuessGame(unittest.TestCase):
         with patch("builtins.print") as mock_print:
             game.play()
             self.assertEqual(game.get_stats(), {"games": 1, "attempts": 3})
-            mock_print.assert_any_call("Outcome: Lost in 3 tries. Target was 5")
-            mock_print.assert_any_call("Current stats: 1 games, 3 attempts")
+            mock_print.assert_any_call("Game over! You lost after 3 tries. The target was 5.")
+            mock_print.assert_any_call("No high scores yet.")
         with open(self.history_file, "r") as f:
             reader = csv.reader(f)
             next(reader)  # Skip headers
@@ -129,16 +131,16 @@ class TestGuessGame(unittest.TestCase):
             self.assertEqual(int(row[2]), 3)
             self.assertEqual(int(row[3]), 5)
     
-    @patch("builtins.input", side_effect=["abc", ""])
+    @patch("builtins.input", side_effect=["Charlie", "abc", ""])
     def test_invalid_input(self, mock_input):
         """Test invalid input handling."""
         game = GuessGame(config_file=self.config_file)
         with patch("builtins.print") as mock_print:
             game.play()
-            mock_print.assert_any_call("Invalid input! Numbers only. Game skipped.")
+            mock_print.assert_any_call("Invalid input! Please enter a number. Game skipped.")
             self.assertEqual(game.get_stats(), {"games": 0, "attempts": 0})
     
-    @patch("builtins.input", side_effect=["11", ""])
+    @patch("builtins.input", side_effect=["David", "11", ""])
     def test_out_of_range_guess(self, mock_input):
         """Test out-of-range guess handling."""
         game = GuessGame(config_file=self.config_file)
@@ -300,6 +302,43 @@ class TestGuessGame(unittest.TestCase):
         self.assertEqual(game.max_attempts, 4)
         self.assertEqual(game.db_name, "test_guess_stats.json.db")
         self.assertEqual(game.history_file, "test_game_history.json.csv")
+    
+    def test_high_score_saving(self):
+        """Test saving a high score."""
+        game = GuessGame(config_file=self.config_file)
+        game.save_high_score("Alice", 2)
+        scores = game.get_high_scores()
+        self.assertEqual(len(scores), 1)
+        self.assertEqual(scores[0]["player_name"], "Alice")
+        self.assertEqual(scores[0]["attempts"], 2)
+    
+    def test_leaderboard_display(self):
+        """Test leaderboard display functionality."""
+        game = GuessGame(config_file=self.config_file)
+        game.save_high_score("Alice", 2)
+        game.save_high_score("Bob", 1)
+        scores = game.get_high_scores()  # Define scores before assertions
+        with patch("builtins.print") as mock_print:
+            game.show_leaderboard()
+            mock_print.assert_any_call("Leaderboard (Top 5):")
+            mock_print.assert_any_call("Rank | Player | Attempts | Timestamp")
+            mock_print.assert_any_call(f"1 | Bob | 1 | {scores[0]['timestamp']}")
+            mock_print.assert_any_call(f"2 | Alice | 2 | {scores[1]['timestamp']}")
+    
+    @patch("builtins.input", side_effect=["Alice", "5", "5"])
+    @patch("random.randint", return_value=5)
+    def test_play_with_high_score(self, mock_randint, mock_input):
+        """Test playing a game and saving high score."""
+        game = GuessGame(config_file=self.config_file)
+        with patch("builtins.print") as mock_print:
+            game.play()
+            scores = game.get_high_scores()
+            self.assertEqual(len(scores), 1)
+            self.assertEqual(scores[0]["player_name"], "Alice")
+            self.assertEqual(scores[0]["attempts"], 1)
+            mock_print.assert_any_call("Congratulations! You won in 1 tries. Target was 5.")
+            mock_print.assert_any_call("Leaderboard (Top 5):")
+            mock_print.assert_any_call(f"1 | Alice | 1 | {scores[0]['timestamp']}")
 
 if __name__ == "__main__":
     unittest.main()

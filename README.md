@@ -213,3 +213,11 @@ CLI parsing makes the game flexible!
 - Files: `test_game.json.log`, `test_game_history.json.csv` verified with JSON-driven settings.
 - Error Handling: Added `JSONDecodeError`, validated JSON keys and values.
 JSON support enhances flexibility and modern config options!
+
+# Day 26: High Score System with SQLite Leaderboard
+- Added SQLite `high_scores` table to `csv_guess.py` to track player names, attempts, and timestamps.
+- Implemented `save_high_score`, `get_high_scores`, `show_leaderboard` for top 5 scores.
+- Updated `test_file_guess.py` with 23 tests, including `test_high_score_saving`, `test_leaderboard_display`.
+- Files: `test_game.json.log`, `test_game_history.json.csv`, `test_guess_stats.json.db` verified.
+- Error Handling: Robust SQLite queries, player name validation.
+High score system boosts engagement and competitiveness!
