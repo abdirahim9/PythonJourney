@@ -214,10 +214,10 @@ CLI parsing makes the game flexible!
 - Error Handling: Added `JSONDecodeError`, validated JSON keys and values.
 JSON support enhances flexibility and modern config options!
 
-# Day 26: High Score System with SQLite Leaderboard
-- Added SQLite `high_scores` table to `csv_guess.py` to track player names, attempts, and timestamps.
-- Implemented `save_high_score`, `get_high_scores`, `show_leaderboard` for top 5 scores.
-- Updated `test_file_guess.py` with 23 tests, including `test_high_score_saving`, `test_leaderboard_display`.
-- Files: `test_game.json.log`, `test_game_history.json.csv`, `test_guess_stats.json.db` verified.
-- Error Handling: Robust SQLite queries, player name validation.
-High score system boosts engagement and competitiveness!
+# Day 26: Metaprogramming with Guessing Game
+- `auto_log` decorator: Logs method calls/returns—auto-debug.
+- `ExportMeta` metaclass: Adds `export_stats` dynamically—runtime magic.
+- `@auto_log`: Applied to `create_table`, `play`—enhances logging.
+- `__new__ in metaclass`: Modifies class dict—adds methods.
+- `export_stats()`: Prints and logs stats—metaclass-added.
+Metaprogramming elevates—dynamic, fine code!
