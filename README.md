@@ -221,3 +221,11 @@ JSON support enhances flexibility and modern config options!
 - `__new__ in metaclass`: Modifies class dict—adds methods.
 - `export_stats()`: Prints and logs stats—metaclass-added.
 Metaprogramming elevates—dynamic, fine code!
+
+# Day 27: Concurrency with Threading in
+- `threading.Thread`: Runs multiple game sessions in parallel—concurrent execution.
+- `GuessGame` class: Extended to support threaded play—OOP with threading integration.
+- Thread-safe updates: Used locks for shared resources (e.g., stats DB)—avoids race conditions.
+- CLI options: Added `--threads` to specify number of parallel games—user-controlled concurrency.
+- Error Handling: Caught `threading.ThreadError`, ensured safe DB access.
+Concurrency boosts scalability—perfect for multi-user SaaS scenarios!
