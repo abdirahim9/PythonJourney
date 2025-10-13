@@ -55,7 +55,7 @@ class Game:
     
     def play(self):
         """Run a single game round, adding guesses to history."""
-        target = 79
+        target = random.randint(self.ranges[0], self.ranges[1])
         print(f"\nGame {self.player.stats['games'] + 1}: Guess {self.ranges[0]}-{self.ranges[1]}!")
         try:
             guess = int(input("Your guess: "))
