@@ -229,3 +229,12 @@ Metaprogramming elevates—dynamic, fine code!
 - CLI options: Added `--threads` to specify number of parallel games—user-controlled concurrency.
 - Error Handling: Caught `threading.ThreadError`, ensured safe DB access.
 Concurrency boosts scalability—perfect for multi-user SaaS scenarios!
+
+# Day 28: Extending Algorithms with NumPy
+- `import numpy as np`: Enables vectorized operations—efficient data handling.
+- `self.guess_history = []`: Tracks guesses for analysis.
+- `add_guess(self, guess)`: Thread-safe append to history.
+- `analyze_guesses(self)`: Converts to `np.array`, computes `np.mean`, `np.std`, `np.sort`.
+- Integrated in `play(self)`: Logs guesses, prints per-game analysis.
+- `main()`: Final overall analysis—cumulative stats.
+NumPy boosts algorithmic efficiency—vectorized mastery! (Executed in venv for clean setup.)
