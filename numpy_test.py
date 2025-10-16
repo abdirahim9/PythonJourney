@@ -5,7 +5,7 @@ import sys
 import threading
 import os
 from unittest.mock import patch
-from numpy_guess import Player, Game  # Make sure this matches your module name
+from numpy_advanced import Player, Game  # Updated import from Day 30 file
 
 class TestPlayer(unittest.TestCase):
     """Unit tests for Player class."""
@@ -41,12 +41,20 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(result, "No guesses yet.")
     
     def test_analyze_guesses_valid(self):
-        """Test NumPy analysis on valid guesses."""
+        """Test advanced NumPy analysis on valid guesses."""
         self.player.guess_history = [50, 80, 72]
         result = self.player.analyze_guesses()
         self.assertIn("Mean: 67.33", result)
-        self.assertIn("Std Dev: 12.68", result)  # np.std with ddof=0
+        self.assertIn("Std Dev: 12.68", result)
         self.assertIn("Sorted: [50 72 80]", result)
+        self.assertIn("Median: 72.00", result)
+        self.assertIn("Mode: 50", result)  # First unique as mode
+    
+    def test_analyze_guesses_mode_duplicates(self):
+        """Test mode with duplicate guesses."""
+        self.player.guess_history = [50, 50, 72]
+        result = self.player.analyze_guesses()
+        self.assertIn("Mode: 50", result)
     
     def test_add_guess_thread_safe(self):
         """Test thread-safe guess addition."""
@@ -68,8 +76,8 @@ class TestGame(unittest.TestCase):
         self.player = Player()
         self.game = Game(self.player)
     
-    @patch('builtins.input', side_effect=["50", "60", "52"])
-    @patch('random.randint', return_value=52)
+    @patch('builtins.input', side_effect=["50", "90", "82"])
+    @patch('random.randint', return_value=82)
     def test_play_win(self, mock_randint, mock_input):
         """Test game play with a winning scenario."""
         original_stdout = sys.stdout

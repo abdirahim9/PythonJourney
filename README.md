@@ -247,3 +247,9 @@ NumPy boosts algorithmic efficiency—vectorized mastery! (Executed in venv for 
 - Mocking: `StringIO` for I/O, threads for concurrency, seed for reproducibility.
 - Covers: Load/save, NumPy analysis, add_guess safety, game play (win/invalid).
 Testing ensures reliability—master robustness! (Run with `python -m unittest` for discovery.)
+
+# Day 30: Advanced NumPy Stats and Test Extensions
+- Extended `analyze_guesses`: Added `np.median`, `np.unique` with `return_counts=True` and `np.argmax` for mode.
+- Optimized return string: Includes median/mode for deeper insights.
+- Updated `numpy_test.py`: New assertions for median/mode; added `test_analyze_guesses_mode_duplicates`.
+- `@patch` mocking preserved—robust testing.
