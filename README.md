@@ -253,3 +253,11 @@ Testing ensures reliability—master robustness! (Run with `python -m unittest` 
 - Optimized return string: Includes median/mode for deeper insights.
 - Updated `numpy_test.py`: New assertions for median/mode; added `test_analyze_guesses_mode_duplicates`.
 - `@patch` mocking preserved—robust testing.
+
+# Day 31: Pandas for Data Analysis
+- `import pandas as pd`: Enables DataFrames—structured analysis.
+- `analyze_guesses`: Switched to DF for stats; added rolling mean trend.
+- `export_guesses_to_csv`: New method—DF to CSV export.
+- Updated `numpy_test.py`: Assertions for trend/export; new tests.
+Efficiency critique: Pandas slower for simple stats—hybrid with NumPy optimal.
+Pandas mastery begins!

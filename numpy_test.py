@@ -1,11 +1,12 @@
 import unittest
 import numpy as np
+import pandas as pd
 from io import StringIO
 import sys
 import threading
 import os
 from unittest.mock import patch
-from numpy_advanced import Player, Game  # Updated import from Day 30 file
+from pandas_guess import Player, Game  # Updated import from Day 31 file
 
 class TestPlayer(unittest.TestCase):
     """Unit tests for Player class."""
@@ -41,20 +42,37 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(result, "No guesses yet.")
     
     def test_analyze_guesses_valid(self):
-        """Test advanced NumPy analysis on valid guesses."""
+        """Test Pandas analysis on valid guesses."""
         self.player.guess_history = [50, 80, 72]
         result = self.player.analyze_guesses()
         self.assertIn("Mean: 67.33", result)
         self.assertIn("Std Dev: 12.68", result)
         self.assertIn("Sorted: [50 72 80]", result)
         self.assertIn("Median: 72.00", result)
-        self.assertIn("Mode: 50", result)  # First unique as mode
-    
-    def test_analyze_guesses_mode_duplicates(self):
-        """Test mode with duplicate guesses."""
-        self.player.guess_history = [50, 50, 72]
-        result = self.player.analyze_guesses()
         self.assertIn("Mode: 50", result)
+        self.assertIn("Recent Trend Mean: Insufficient data", result)
+    
+    def test_analyze_guesses_trend(self):
+        """Test trend with sufficient guesses."""
+        self.player.guess_history = [50, 60, 70, 80, 90]
+        result = self.player.analyze_guesses()
+        self.assertIn("Recent Trend Mean: 70.00", result)  # Rolling mean of last 5
+    
+    def test_export_guesses_to_csv(self):
+        """Test CSV export."""
+        self.player.guess_history = [50, 80, 72]
+        filename = "test_guesses.csv"
+        if os.path.exists(filename):
+            os.remove(filename)
+        original_stdout = sys.stdout
+        sys.stdout = StringIO()
+        self.player.export_guesses_to_csv(filename)
+        output = sys.stdout.getvalue()
+        sys.stdout = original_stdout
+        self.assertIn(f"Guesses exported to {filename}", output)
+        df = pd.read_csv(filename)
+        self.assertEqual(list(df['guesses']), [50, 80, 72])
+        os.remove(filename)
     
     def test_add_guess_thread_safe(self):
         """Test thread-safe guess addition."""
