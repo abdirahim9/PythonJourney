@@ -5,8 +5,8 @@ from io import StringIO
 import sys
 import threading
 import os
-from unittest.mock import patch
-from pandas_guess import Player, Game  # Updated import from Day 31 file
+from unittest.mock import patch, MagicMock
+from pandas_viz import Player, Game  # Updated import from Day 32 file
 
 class TestPlayer(unittest.TestCase):
     """Unit tests for Player class."""
@@ -56,7 +56,7 @@ class TestPlayer(unittest.TestCase):
         """Test trend with sufficient guesses."""
         self.player.guess_history = [50, 60, 70, 80, 90]
         result = self.player.analyze_guesses()
-        self.assertIn("Recent Trend Mean: 70.00", result)  # Rolling mean of last 5
+        self.assertIn("Recent Trend Mean: 70.00", result)
     
     def test_export_guesses_to_csv(self):
         """Test CSV export."""
@@ -73,6 +73,21 @@ class TestPlayer(unittest.TestCase):
         df = pd.read_csv(filename)
         self.assertEqual(list(df['guesses']), [50, 80, 72])
         os.remove(filename)
+    
+    def test_plot_guess_histogram(self):
+        """Test histogram plot."""
+        self.player.guess_history = [50, 80, 72]
+        filename = "test_hist.png"
+        if os.path.exists(filename):
+            os.remove(filename)
+        with patch('matplotlib.pyplot.savefig') as mock_savefig:
+            original_stdout = sys.stdout
+            sys.stdout = StringIO()
+            self.player.plot_guess_histogram(filename)
+            output = sys.stdout.getvalue()
+            sys.stdout = original_stdout
+            self.assertIn(f"Histogram saved to {filename}", output)
+            mock_savefig.assert_called_once_with(filename)
     
     def test_add_guess_thread_safe(self):
         """Test thread-safe guess addition."""

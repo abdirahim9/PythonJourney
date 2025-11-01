@@ -261,3 +261,10 @@ Testing ensures reliability—master robustness! (Run with `python -m unittest` 
 - Updated `numpy_test.py`: Assertions for trend/export; new tests.
 Efficiency critique: Pandas slower for simple stats—hybrid with NumPy optimal.
 Pandas mastery begins!
+
+# Day 32: Pandas Visualization
+- `import matplotlib.pyplot as plt`: Enables plotting—histograms.
+- `get_guesses_df(self)`: Reusable DF—efficiency.
+- `plot_guess_histogram`: New method—saves hist PNG.
+- Updated `numpy_test.py`: Test for plot with mock savefig.
+Efficiency critique: Reused DF reduces overhead; Matplotlib efficient for small data. Viz understanding!
