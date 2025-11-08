@@ -284,3 +284,10 @@ Data integration enhanced!
 - Fusion: Temp adjusts game range—creative difficulty.
 - Updated `numpy_test.py`: Mocked API tests for success/error.
 API mastery with fusion!
+
+# Day 35: Advanced Aggregation with Pandas
+- `get_weather_trends_df`: Uses groupby for avg temp by condition.
+- Update `analyze_guesses`: Fuses aggregated trends.
+- Updated `numpy_test.py`: Tests for groupby aggregation.
+Efficiency: Vectorized for larger datasets.
+Aggregation understood!
