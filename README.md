@@ -291,3 +291,10 @@ API mastery with fusion!
 - Updated `numpy_test.py`: Tests for groupby aggregation.
 Efficiency: Vectorized for larger datasets.
 Aggregation understood!
+
+# Day 36: OOP for Cosmic Simulator
+- `class Signal`: Generates signal data.
+- `class Simulator`: Manages signals, runs aggregation.
+- Git branching: For features like analysis.
+- Updated `numpy_test.py`: Tests for classes.
+Modular achieved!
