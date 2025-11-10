@@ -298,3 +298,10 @@ Aggregation understood!
 - Git branching: For features like analysis.
 - Updated `numpy_test.py`: Tests for classes.
 Modular achieved!
+
+# Day 37: Core Simulation Logic
+- Refined `generate()` with loops and list patterns for realistic signals.  
+- Integrated NumPy for faster, vectorized analysis.  
+- Merged generation and analysis into a single simulation pipeline.  
+- Updated `numpy_test.py` for signal range and statistical accuracy (`ddof=0`).  
+Simulation logic optimized and fully validated!

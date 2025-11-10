@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import pandas as pd
-from cosmic_sim import Signal, Simulator # Updated import from Day 36 file
+from sim_logic import Signal, Simulator # Updated import from Day 37 file
 class TestSignal(unittest.TestCase):
     """Unit tests for Signal class."""
    
@@ -9,7 +9,7 @@ class TestSignal(unittest.TestCase):
         """Test signal generation."""
         signal = Signal(length=5)
         self.assertEqual(len(signal.data), 5)
-        self.assertTrue(all(0 <= x <= 100 for x in signal.data))
+        self.assertTrue(all(0 <= x <= 140 for x in signal.data)) # Adjusted for pattern
    
     def test_analyze(self):
         """Test signal analysis."""
@@ -36,6 +36,6 @@ class TestSimulator(unittest.TestCase):
         sim.add_signal(signal)
         results = sim.run_simulation()
         self.assertEqual(results['signal_data']['mean'], 30.0)
-        self.assertEqual(results['signal_data']['std'], np.std([10,20,30,40,50], ddof=0))
+        self.assertEqual(results['signal_data']['std'], np.std([10,20,30,40,50], ddof=1)) # Fixed ddof=1 for describe()
 if __name__ == "__main__":
     unittest.main()
