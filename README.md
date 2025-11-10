@@ -323,3 +323,10 @@ Pipeline understood!
 - Fuse in `Signal`:Integrates the scaled temperature into the `Signal` module so the simulator uses API data.
 - Updated `numpy_test.py`:Added mocks and tests to check that the API integration works correctly.
 
+
+# Day 41: File I/O Persistence
+- `save_state/load_state`: JSON I/O for signals.
+- Advanced exception handling: Handles `IOError` and file-not-found.
+- Updated `numpy_test.py`: Mocks `open` for testing file I/O without touching disk.
+- This allows saving and loading simulation states, making experiments restart-safe.Persistence understood!
+

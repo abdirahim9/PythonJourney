@@ -1,30 +1,29 @@
 import unittest
 import numpy as np
-import pandas as pd
-import requests  # ✅ Needed for exceptions in API tests
-from unittest.mock import patch, MagicMock  # ✅ Added MagicMock
-from api_enhance_sim import Signal, Simulator, fetch_weather_scale  # Updated import
+from unittest.mock import patch, mock_open
+import json
+from io_persist_sim import Signal, Simulator
 
 class TestSignal(unittest.TestCase):
     def test_generate(self):
         signal = Signal(length=5)
         self.assertEqual(signal.data.shape[0], 5)
-        # Updated to check float because scaling may convert to float
-        self.assertTrue(np.issubdtype(signal.data.dtype, np.floating))  
-        self.assertTrue(all(0 <= x <= 140 for x in signal.data))
+        self.assertTrue(np.issubdtype(signal.data.dtype, np.floating))  # Adjusted for float dtype due to scale
+        self.assertTrue(all(0 <= x <= 140 for x in signal.data))  # Adjusted for pattern
 
     def test_analyze(self):
         signal = Signal(length=5)
         signal.data = np.array([10, 20, 30, 40, 50])
         result = signal.analyze()
         self.assertIn("Mean: 30.00", result)
-        self.assertIn("Std: 14.14", result)
+        self.assertIn("Std: 14.14", result)  # population std
 
-    def test_scale_fusion(self):
-        signal = Signal(length=5, scale=0.5)
-        signal.data = np.array([10, 20, 30, 40, 50]) * 0.5  # Mock scaled
-        result = signal.analyze()
-        self.assertIn("Mean: 15.00", result)
+    def test_to_dict(self):
+        signal = Signal(length=5)
+        signal.data = np.array([10, 20, 30, 40, 50])
+        d = signal.to_dict()
+        self.assertEqual(d['length'], 5)
+        self.assertEqual(d['data'], [10.0, 20.0, 30.0, 40.0, 50.0])  # tolist() makes float
 
 class TestSimulator(unittest.TestCase):
     def test_add_signal(self):
@@ -40,7 +39,7 @@ class TestSimulator(unittest.TestCase):
         sim.add_signal(signal)
         results = sim.run_simulation()
         self.assertEqual(results['signal_data']['mean'], 30.0)
-        self.assertAlmostEqual(results['signal_data']['std'], 14.142135623730951, places=5)
+        self.assertAlmostEqual(results['signal_data']['std'], 14.142135623730951, places=5)  # population std
 
     def test_analyze_with_pandas(self):
         sim = Simulator()
@@ -61,21 +60,26 @@ class TestSimulator(unittest.TestCase):
             sim.visualize(filename)
             mock_save.assert_called_once_with(filename)
 
-class TestAPI(unittest.TestCase):
-    @patch('requests.get')
-    def test_fetch_weather_scale_success(self, mock_get):
-        mock_response = MagicMock()
-        mock_response.json.return_value = {'main': {'temp': 20.0}}
-        mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
-        scale = fetch_weather_scale()
-        self.assertEqual(scale, 0.2)
+    def test_save_state(self):
+        sim = Simulator()
+        signal = Signal(length=5)
+        sim.add_signal(signal)
+        filename = "test_state.json"
+        mock_data = json.dumps([signal.to_dict()])
+        with patch("builtins.open", mock_open()) as mock_file:
+            sim.save_state(filename)
+            mock_file.assert_called_with(filename, 'w')
+        # Note: json.dump not mocked, but call verified indirectly
 
-    @patch('requests.get')
-    def test_fetch_weather_scale_error(self, mock_get):
-        mock_get.side_effect = requests.exceptions.RequestException("Error")
-        scale = fetch_weather_scale()
-        self.assertEqual(scale, 1.0)
+    def test_load_state(self):
+        sim = Simulator()
+        filename = "test_state.json"
+        mock_state = [{'length': 5, 'frequency': 5, 'scale': 1.0, 'data': [10, 20, 30, 40, 50]}]
+        with patch("builtins.open", mock_open(read_data=json.dumps(mock_state))):
+            with patch('os.path.exists', return_value=True):
+                sim.load_state(filename)
+                self.assertEqual(len(sim.signals), 1)
+                np.testing.assert_array_equal(sim.signals[0].data, np.array([10, 20, 30, 40, 50]))
 
 if __name__ == "__main__":
     unittest.main()
