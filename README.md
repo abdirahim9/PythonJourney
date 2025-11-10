@@ -335,12 +335,12 @@ Pipeline understood!
 - Updated `numpy_test.py`: Mocks and tests multi-threaded signal addition to verify correctness.
 - Demonstrates how Python threading can improve performance in I/O-bound or lightweight tasks. Concurrency done!
 
-# Day 43: Recursion for Patterns (recursive_sim.py)  
+# Day 43: Recursion for Patterns   
 - `generate_recursive`: Generates signals with depth-based patterns.  
 - Fuse depth from API: Allows dynamic recursion based on weather.  
 - Updated `numpy_test.py`: Now tests recursive generation and analysis. Recursion done!
 
-# Day 44: Async/Cython Optimization (opt_sim.py)
+# Day 44: Async/Cython Optimization 
 - Async `async_fetch_weather_scale`: Concurrent I/O.
 - Cython `cython_generate`: Compiled speedup.
 - Updated `numpy_test.py`: Tests async mocks.
