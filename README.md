@@ -305,3 +305,9 @@ Modular achieved!
 - Merged generation and analysis into a single simulation pipeline.  
 - Updated `numpy_test.py` for signal range and statistical accuracy (`ddof=0`).  
 Simulation logic optimized and fully validated!
+
+# Day 38: NumPy Optimization
+- Vectorized `generate`: Arrays + pattern.
+- Benchmark: 50-100x speedup.
+- Updated `numpy_test.py`: Array shape/dtype.
+Efficiency grasped!
