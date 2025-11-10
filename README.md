@@ -323,10 +323,17 @@ Pipeline understood!
 - Fuse in `Signal`:Integrates the scaled temperature into the `Signal` module so the simulator uses API data.
 - Updated `numpy_test.py`:Added mocks and tests to check that the API integration works correctly.
 
-
 # Day 41: File I/O Persistence
 - `save_state/load_state`: JSON I/O for signals.
 - Advanced exception handling: Handles `IOError` and file-not-found.
 - Updated `numpy_test.py`: Mocks `open` for testing file I/O without touching disk.
 - This allows saving and loading simulation states, making experiments restart-safe.Persistence understood!
+
+
+# Day 42: Threading Concurrency 
+- `lock = threading.Lock()`: Ensures thread-safe access to shared simulator state.
+- Concurrent `add_signal`: Allows multiple threads to add signals in parallel without data corruption.
+- Updated `numpy_test.py`: Mocks and tests multi-threaded signal addition to verify correctness.
+- Demonstrates how Python threading can improve performance in I/O-bound or lightweight tasks. Concurrency done!
+
 

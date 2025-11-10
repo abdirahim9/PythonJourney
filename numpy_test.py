@@ -1,9 +1,10 @@
 import unittest
 import numpy as np
+import pandas as pd
 from unittest.mock import patch, mock_open
 import json
-from io_persist_sim import Signal, Simulator
-
+import threading
+from concurrent_sim import Signal, Simulator # Updated import from Day 42 file
 class TestSignal(unittest.TestCase):
     def test_generate(self):
         signal = Signal(length=5)
@@ -80,6 +81,19 @@ class TestSimulator(unittest.TestCase):
                 sim.load_state(filename)
                 self.assertEqual(len(sim.signals), 1)
                 np.testing.assert_array_equal(sim.signals[0].data, np.array([10, 20, 30, 40, 50]))
+
+    def test_concurrent_add_signal(self):
+        sim = Simulator()
+        def add_signals():
+            for _ in range(100):
+                signal = Signal(length=5)
+                sim.add_signal(signal)
+        threads = [threading.Thread(target=add_signals) for _ in range(10)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(len(sim.signals), 1000)
 
 if __name__ == "__main__":
     unittest.main()
