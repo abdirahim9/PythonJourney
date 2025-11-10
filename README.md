@@ -317,3 +317,9 @@ Efficiency grasped!
 - `visualize`: Generates and saves histograms using Matplotlib.
 - Updated `numpy_test.py`: Includes test cases for Pandas analysis and visualization functions.
 Pipeline understood!
+
+# Day 40: API Enhancement in Simulator
+- `fetch_weather_scale`:Gets temperature data and converts it to a consistent scale for the simulator.
+- Fuse in `Signal`:Integrates the scaled temperature into the `Signal` module so the simulator uses API data.
+- Updated `numpy_test.py`:Added mocks and tests to check that the API integration works correctly.
+
