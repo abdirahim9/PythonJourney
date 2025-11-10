@@ -329,11 +329,16 @@ Pipeline understood!
 - Updated `numpy_test.py`: Mocks `open` for testing file I/O without touching disk.
 - This allows saving and loading simulation states, making experiments restart-safe.Persistence understood!
 
-
 # Day 42: Threading Concurrency 
 - `lock = threading.Lock()`: Ensures thread-safe access to shared simulator state.
 - Concurrent `add_signal`: Allows multiple threads to add signals in parallel without data corruption.
 - Updated `numpy_test.py`: Mocks and tests multi-threaded signal addition to verify correctness.
 - Demonstrates how Python threading can improve performance in I/O-bound or lightweight tasks. Concurrency done!
+
+# Day 43: Recursion for Patterns (recursive_sim.py)  
+- `generate_recursive`: Generates signals with depth-based patterns.  
+- Fuse depth from API: Allows dynamic recursion based on weather.  
+- Updated `numpy_test.py`: Now tests recursive generation and analysis. Recursion done!
+
 
 

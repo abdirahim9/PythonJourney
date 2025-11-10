@@ -1,10 +1,10 @@
 import unittest
 import numpy as np
 import pandas as pd
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 import json
 import threading
-from concurrent_sim import Signal, Simulator # Updated import from Day 42 file
+from recursive_sim import Signal, Simulator, fetch_weather_depth # Updated import from Day 43 file
 class TestSignal(unittest.TestCase):
     def test_generate(self):
         signal = Signal(length=5)
@@ -25,6 +25,14 @@ class TestSignal(unittest.TestCase):
         d = signal.to_dict()
         self.assertEqual(d['length'], 5)
         self.assertEqual(d['data'], [10.0, 20.0, 30.0, 40.0, 50.0])  # tolist() makes float
+
+    def test_generate_recursive(self):
+        signal = Signal(length=5, depth=2)
+        base = np.array([10, 20, 30, 40, 50])
+        result = signal.generate_recursive(base, 2)
+        # Pattern added twice (div by depth)
+        expected = base + (np.arange(5) % 5) * 10 / 2 + (np.arange(5) % 5) * 10 / 1
+        np.testing.assert_array_equal(result, expected)
 
 class TestSimulator(unittest.TestCase):
     def test_add_signal(self):
@@ -75,7 +83,7 @@ class TestSimulator(unittest.TestCase):
     def test_load_state(self):
         sim = Simulator()
         filename = "test_state.json"
-        mock_state = [{'length': 5, 'frequency': 5, 'scale': 1.0, 'data': [10, 20, 30, 40, 50]}]
+        mock_state = [{'length': 5, 'frequency': 5, 'scale': 1.0, 'depth': 3, 'data': [10, 20, 30, 40, 50]}]
         with patch("builtins.open", mock_open(read_data=json.dumps(mock_state))):
             with patch('os.path.exists', return_value=True):
                 sim.load_state(filename)
@@ -94,6 +102,16 @@ class TestSimulator(unittest.TestCase):
         for t in threads:
             t.join()
         self.assertEqual(len(sim.signals), 1000)
+
+class TestAPI(unittest.TestCase):
+    def test_fetch_weather_depth(self):
+        with patch('requests.get') as mock_get:
+            mock_response = MagicMock()
+            mock_response.json.return_value = {'main': {'temp': 25.0}}
+            mock_response.raise_for_status.return_value = None
+            mock_get.return_value = mock_response
+            depth = fetch_weather_depth()
+            self.assertEqual(depth, 3)  # int(25/10)+1 = 3
 
 if __name__ == "__main__":
     unittest.main()
