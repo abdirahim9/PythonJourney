@@ -353,3 +353,10 @@ Optimization done!
 - Enhanced architecture: modular structure with reusable components and clear dependency flow.
 - Comprehensive inline documentation and example scripts for reproducible runs.
 - Updated `numpy_test.py` to perform automated end-to-end simulation validation and benchmarking.
+
+# Day 46: Regression with Scikit-learn
+- Implement LinearRegression on signal datasets to predict continuous outputs.
+- Evaluate model performance using Mean Squared Error (MSE) and R² score.
+- Analyze feature importance or coefficients to understand signal contributions.
+- Initialize Git and DVC for dataset and model versioning.
+- Update `numpy_test.py` to include unittests for regression model outputs and predictions. ML journey continues!
