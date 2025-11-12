@@ -368,3 +368,11 @@ Optimization done!
 - Tracked experiments via MLflow for MLOps.
 - Updated `numpy_test.py`: Classification tests.
 Deeper ML through model selection and explanations!
+
+# Day 48: Preprocessing Pipelines
+- Built Pipeline/ColumnTransformer for scaling, encoding, cleaning.
+- Automated for raw inputs; tested on varied data (missing/outliers).
+- Documented streamlining of ML workflows.
+- Logged via MLflow.
+- Updated `numpy_test.py`: Pipeline tests.
+Efficient ML through automation!
