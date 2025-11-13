@@ -82,10 +82,26 @@ class MLSimulator(Simulator):
     def apply_pipeline(self, df, preprocessor):
         """Apply pipeline and log to MLflow."""
         try:
+            # Fit and transform the full data
             processed_data = preprocessor.fit_transform(df)
-            # Log pipeline
+            # Infer signature and prepare input example using a sample
+            if len(df) > 0:
+                sample_input = df.iloc[:1].reset_index(drop=True)  # Ensure proper indexing
+                fitted_sample = preprocessor.fit(sample_input)
+                sample_output = fitted_sample.transform(sample_input)
+                signature = infer_signature(sample_input, sample_output)
+                input_example = sample_input
+            else:
+                signature = None
+                input_example = None
+            # Log pipeline without warnings
             with mlflow.start_run():
-                mlflow.sklearn.log_model(preprocessor, "preprocessor")
+                mlflow.sklearn.log_model(
+                    sk_model=preprocessor,
+                    name="preprocessor",  # Use 'name' to avoid deprecation
+                    signature=signature,
+                    input_example=input_example
+                )
             return processed_data
         except Exception as e:
             print(f"Pipeline error: {e}")

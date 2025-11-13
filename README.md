@@ -376,3 +376,11 @@ Deeper ML through model selection and explanations!
 - Logged via MLflow.
 - Updated `numpy_test.py`: Pipeline tests.
 Efficient ML through automation!
+
+# Day 49: Cross-Validation & Tuning
+- GridSearchCV on RandomForest with preprocessor.
+- Evaluated baseline vs. tuned F1; critiqued improvements.
+- Documented strategies (e.g., param grids, scoring).
+- Tracked via MLflow.
+- Updated `numpy_test.py`: Tuning tests.
+Optimized ML understood through generalization!
