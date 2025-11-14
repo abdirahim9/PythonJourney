@@ -3,19 +3,16 @@ import numpy as np
 import pandas as pd
 from unittest.mock import patch
 from sklearn.model_selection import train_test_split
-from embedded_model import MLSimulator, Signal  # Updated import from Day 50 file
+from clustering_model import MLSimulator, Signal  # Updated import from Day 51 file
 
 class TestMLSimulator(unittest.TestCase):
-    def test_embedded_model(self):
+    def test_clustering(self):
         sim = MLSimulator()
         df = sim.generate_raw_data()
-        X = df[['mean', 'var']]
-        y = df['label']
-        integration_f1 = sim.train_and_embed_model(X, y)
-        self.assertGreater(integration_f1, 0.5)
-        prediction, adapted_std = sim.real_time_decision(0.5, 100.0)
-        self.assertIn(prediction, ['low', 'medium', 'high'])
-        self.assertIsInstance(adapted_std, int)
+        clustered_df, score = sim.apply_clustering(df)
+        self.assertEqual(clustered_df.shape[0], df.shape[0])
+        self.assertGreater(score, 0.4)  # Reasonable threshold for good clustering
+        self.assertIn('cluster', clustered_df.columns)
     # Prior tests here
 
 if __name__ == "__main__":

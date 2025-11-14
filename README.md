@@ -392,3 +392,12 @@ Optimized ML understood through generalization!
 - Tracked via MLflow.
 - Updated `numpy_test.py`: Embedding tests.
 Real-time ML practice achieved!
+
+# Day 51: Clustering Algorithms
+- Explored KMeans for pattern discovery in signals.
+- Visualized clusters with Matplotlib/Seaborn.
+- Extended tests with silhouette score.
+- Brainstormed applications like grouped optimizations.
+- Tracked via MLflow.
+- Updated `numpy_test.py`: Clustering tests.
+Unsupervised done through insights!
