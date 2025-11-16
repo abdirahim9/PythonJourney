@@ -1,0 +1,5 @@
+outs:
+- md5: 14f3398fbc441e9625d57207bfd3e17f
+  size: 591
+  hash: md5
+  path: reduced_data.csv
