@@ -401,3 +401,10 @@ Real-time ML practice achieved!
 - Tracked via MLflow.
 - Updated `numpy_test.py`: Clustering tests.
 Unsupervised done through insights!
+
+# Day 52: PCA Reduction 
+- Applied PCA for dimensionality reduction on signal data.
+- Analyzed variance and model performance impact.
+- Versioned reduced datasets with DVC.
+- Updated `numpy_test.py`: PCA tests.
+Data governance done through reduction!
