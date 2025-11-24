@@ -1,28 +1,36 @@
+name: ML Model CI/CD
+'on':
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+  workflow_dispatch: {}
 jobs:
   test-and-ml:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
     - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Run unit tests
+      run: python -m pip install --upgrade pip && pip install -r requirements.txt
+        && pip install ruff mypy
+    - name: Lint with ruff
+      run: ruff check .
+    - name: Type check with mypy
+      run: mypy .
+    - name: Run unit tests (discover)
       run: python -m unittest discover -s . -p 'test_*.py'
-    - env:
+    - name: Run ML pipeline with F1 gate
+      env:
         F1_THRESHOLD: '0.90'
-      name: Run ML simulator with F1 gate
       run: python forecast_ci.py
-    - name: Benchmark p99
+    - name: Run p99 benchmark
+      env:
+        P99_THRESHOLD: '0.050'
       run: python benchmark.py
-name: ML Model CI/CD
-'on':
-  pull_request:
-    branches:
-    - main
-  push:
-    branches:
-    - main
-  workflow_dispatch: {}
