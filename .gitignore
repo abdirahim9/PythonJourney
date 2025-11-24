@@ -1,0 +1,30 @@
+# OS / editor / environment
+.DS_Store
+venv/
+__pycache__/
+*.pyc
+
+# MLflow artifacts
+mlruns/
+mlflow.db
+
+# DVC cache and config (optional)
+.dvc/
+.dvcignore
+
+# Local DBs, logs, data files
+*.db
+*.log
+*.csv
+*.json
+*.json.db
+*.sqlite
+
+# Plots and images
+*.png
+
+# Specific local game/sim artifacts (if still generated)
+game.log
+sim_state.json
+test_game.json
+test_game_history.csv
