@@ -417,7 +417,7 @@ Data governance done through reduction!
 - Enhanced `numpy_test.py` with specific tests for forecasting and hybrid features.
 Achieved understanding of hybrid engineering and MLOps integration!
 
-# Day 54: Imbalanced Handling (bias_monitor.py)
+# Day 54: Imbalanced Handling
 - Handled imbalance with weighting.
 - Evaluated fairness with disparate impact.
 - Implemented bias monitoring.

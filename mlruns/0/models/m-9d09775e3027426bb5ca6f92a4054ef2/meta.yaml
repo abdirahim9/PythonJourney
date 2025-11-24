@@ -1,0 +1,10 @@
+artifact_location: file:///Users/abdirahimmohamud/Python_mastery/mlruns/0/models/m-9d09775e3027426bb5ca6f92a4054ef2/artifacts
+creation_timestamp: 1762942486546
+experiment_id: '0'
+last_updated_timestamp: 1762942488080
+model_id: m-9d09775e3027426bb5ca6f92a4054ef2
+model_type: null
+name: model
+source_run_id: 02384dddc0e64c66a0c10e0855fb71ad
+status: 2
+status_message: null

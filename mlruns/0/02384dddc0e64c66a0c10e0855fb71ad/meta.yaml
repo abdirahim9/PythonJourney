@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/abdirahimmohamud/Python_mastery/mlruns/0/02384dddc0e64c66a0c10e0855fb71ad/artifacts
+end_time: 1762942488082
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 02384dddc0e64c66a0c10e0855fb71ad
+run_name: rebellious-lynx-833
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762942486539
+status: 3
+tags: []
+user_id: abdirahimmohamud
