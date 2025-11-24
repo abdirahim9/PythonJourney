@@ -10,24 +10,31 @@ from sklearn.preprocessing import StandardScaler
 import yaml
 import os
 import subprocess
+import sys
 
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
 
+
 class Signal:
     _counter = 0
+
     def __init__(self, length, std=10):
         np.random.seed(42 + Signal._counter)
         self.data = np.random.normal(0, std, length)
         Signal._counter += 1
 
+
 class Simulator:
     def __init__(self):
         self.signals = []
+
     def add_signal(self, signal):
         self.signals.append(signal)
 
+
 class MLSimulator(Simulator):
     """Extends Simulator with forecasting integration."""
+
     def __init__(self):
         super().__init__()
         self.model = None
@@ -42,30 +49,44 @@ class MLSimulator(Simulator):
                 mean = np.mean(signal.data)
                 var = np.var(signal.data)
                 label = 0 if std == 3 else 1 if std == 10 else 2
-                data.append({'mean': mean, 'var': var, 'label': label})
+                data.append({"mean": mean, "var": var, "label": label})
         np.random.shuffle(data)
         return pd.DataFrame(data)
 
     def train_model(self, df):
         """Train classifier for forecasting."""
-        X = df[['mean', 'var']]
-        y = df['label']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        pipeline = Pipeline([
-            ('imputer', SimpleImputer(strategy='mean')),
-            ('scaler', StandardScaler()),
-            ('classifier', RandomForestClassifier(random_state=42))
-        ])
+        X = df[["mean", "var"]]
+        y = df["label"]
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+
+        pipeline = Pipeline(
+            [
+                ("imputer", SimpleImputer(strategy="mean")),
+                ("scaler", StandardScaler()),
+                ("classifier", RandomForestClassifier(random_state=42)),
+            ]
+        )
+
         pipeline.fit(X_train, y_train)
-        f1 = f1_score(y_test, pipeline.predict(X_test), average='weighted')
+        preds = pipeline.predict(X_test)
+        f1 = f1_score(y_test, preds, average="weighted")
         self.model = pipeline
+
+        # Log to MLflow
+        with mlflow.start_run(run_name="ml_simulator_ci"):
+            mlflow.log_param("model_type", "RandomForestClassifier")
+            mlflow.log_param("features", ["mean", "var"])
+            mlflow.log_metric("f1_weighted", f1)
+
         return f1
 
     def forecast_signal(self, mean, var):
         """Forecast using integrated model."""
         if self.model is None:
             raise ValueError("Model not trained.")
-        input_df = pd.DataFrame({'mean': [mean], 'var': [var]})
+        input_df = pd.DataFrame({"mean": [mean], "var": [var]})
         prediction = self.model.predict(input_df)[0]
         return prediction
 
@@ -85,40 +106,93 @@ class MLSimulator(Simulator):
 
     def setup_ci_cd(self):
         """Set up CI/CD workflow YAML with p99 gating."""
-        workflow_dir = '.github/workflows'
+        workflow_dir = ".github/workflows"
         os.makedirs(workflow_dir, exist_ok=True)
         workflow = {
-            'name': 'ML Model CI/CD',
-            'on': {'push': {'branches': ['main']}},
-            'jobs': {
-                'test': {
-                    'runs-on': 'ubuntu-latest',
-                    'steps': [
-                        {'uses': 'actions/checkout@v2'},
-                        {'name': 'Set up Python', 'uses': 'actions/setup-python@v2', 'with': {'python-version': '3.12'}},
-                        {'name': 'Install dependencies', 'run': 'pip install -r requirements.txt'},
-                        {'name': 'Run tests', 'run': 'python -m unittest numpy_test.py'},
-                        {'name': 'Benchmark p99', 'run': 'python benchmark.py'}
-                    ]
+            "name": "ML Model CI/CD",
+            "on": {
+                "push": {"branches": ["main"]},
+                "pull_request": {"branches": ["main"]},
+                "workflow_dispatch": {},
+            },
+            "jobs": {
+                "test-and-ml": {
+                    "runs-on": "ubuntu-latest",
+                    "steps": [
+                        {"uses": "actions/checkout@v4"},
+                        {
+                            "name": "Set up Python",
+                            "uses": "actions/setup-python@v5",
+                            "with": {"python-version": "3.12"},
+                        },
+                        {
+                            "name": "Install dependencies",
+                            "run": "pip install -r requirements.txt",
+                        },
+                        {
+                            "name": "Run unit tests",
+                            "run": "python -m unittest discover -s . -p 'test_*.py'",
+                        },
+                        {
+                            "name": "Run ML simulator with F1 gate",
+                            "env": {"F1_THRESHOLD": "0.90"},
+                            "run": "python forecast_ci.py",
+                        },
+                        {
+                            "name": "Benchmark p99",
+                            "run": "python benchmark.py",
+                        },
+                    ],
                 }
-            }
+            },
         }
-        with open(os.path.join(workflow_dir, 'ml_cicd.yaml'), 'w') as f:
+        with open(os.path.join(workflow_dir, "ml_cicd.yaml"), "w") as f:
             yaml.dump(workflow, f)
-        subprocess.run(['git', 'add', 'requirements.txt'], check=True)
-        subprocess.run(['git', 'add', 'benchmark.py'], check=True)
-        subprocess.run(['git', 'add', os.path.join(workflow_dir, 'ml_cicd.yaml')], check=True)
-        subprocess.run(['git', 'commit', '-m', 'Added CI/CD workflow, requirements.txt, and benchmark.py for Day 53'], check=True)
+
+        # Git operations for local automation
+        subprocess.run(["git", "add", "requirements.txt"], check=True)
+        subprocess.run(["git", "add", "benchmark.py"], check=True)
+        subprocess.run(
+            ["git", "add", os.path.join(workflow_dir, "ml_cicd.yaml")], check=True
+        )
+        subprocess.run(
+            [
+                "git",
+                "commit",
+                "-m",
+                "Added CI/CD workflow, requirements.txt, and benchmark.py for Day 53",
+            ],
+            check=True,
+        )
+
 
 def main():
     sim = MLSimulator()
     df = sim.generate_raw_data()
     train_f1 = sim.train_model(df)
     print("Training F1:", train_f1)
+
+    # Gate on F1 for CI
+    threshold = float(os.getenv("F1_THRESHOLD", "0.0"))
+    if threshold > 0:
+        if train_f1 < threshold:
+            print(
+                f"F1 gate FAILED: {train_f1:.4f} < threshold {threshold:.4f}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        else:
+            print(
+                f"F1 gate PASSED: {train_f1:.4f} >= threshold {threshold:.4f}",
+            )
+
     patterns = sim.hybrid_recursive_pattern(initial_std=10, steps=3)
     print("Hybrid Patterns:", patterns)
+
+    # For Day 53 automation, still set up CI/CD and commit
     sim.setup_ci_cd()
-    print("CI/CD workflow set up with p99 gating.")
+    print("CI/CD workflow set up with F1 + p99 gating.")
+
 
 if __name__ == "__main__":
     main()
