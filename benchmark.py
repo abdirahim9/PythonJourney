@@ -1,30 +1,15 @@
-import timeit
+import requests
 import numpy as np
-from forecast_ci import MLSimulator
+import time
 
-def setup_benchmark():
-    # Initialize and train a model for the benchmark
-    sim = MLSimulator()
-    df = sim.generate_raw_data()
-    sim.train_model(df)
-    return sim
-
-sim_instance = setup_benchmark()
-
-def test_func():
-    # Benchmark the specific forecasting method
-    sim_instance.forecast_signal(0.5, 100.0)
-
-if __name__ == "__main__":
-    # Run 1000 loops, repeat 10 times to get stable p99
-    times = timeit.repeat(test_func, number=1000, repeat=10)
-    # Calculate time per call (timeit returns total time for 'number' executions)
-    per_call_times = [t / 1000 for t in times]
-    p99 = np.percentile(per_call_times, 99)
-
-    print(f"p99 Latency: {p99:.6f} seconds")
-
-    # Strict Gate: 500ms (0.5 seconds)
-    if p99 > 0.5:
-        raise ValueError(f'Performance Failure: p99 latency {p99:.6f}s exceeds 0.5s limit.')
-    print("Performance Check Passed.")
+times = []
+for _ in range(100):
+    start = time.time()
+    payload = {"mean": 0.5, "var": 100.0}
+    headers = {"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIn0.Qw4w9WgXcQ"}  # Generate valid token
+    requests.post("http://localhost:8000/predict", json=payload, headers=headers)
+    times.append(time.time() - start)
+p50, p95, p99 = np.percentile(times, [50, 95, 99])
+print(f"p50: {p50:.3f}s, p95: {p95:.3f}s, p99: {p99:.3f}s")
+if p99 > 0.5:
+    raise ValueError(f"p99 {p99:.3f}s exceeds 500ms")
