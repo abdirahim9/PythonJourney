@@ -1,53 +1,30 @@
-import os
-import sys
-import time
+import timeit
 import numpy as np
+from forecast_ci import MLSimulator
 
+def setup_benchmark():
+    # Initialize and train a model for the benchmark
+    sim = MLSimulator()
+    df = sim.generate_raw_data()
+    sim.train_model(df)
+    return sim
 
-def run_benchmark() -> None:
-    """
-    Simple latency benchmark.
+sim_instance = setup_benchmark()
 
-    - Runs an operation N times.
-    - Computes mean latency and p99.
-    - Optionally gates on P99_THRESHOLD env var (seconds).
-    """
-    N = 1000
-    times = []
-
-    for _ in range(N):
-        start = time.perf_counter()
-        # ---- Replace this block with your real operation if desired ----
-        _ = np.sort(np.random.randn(1000))
-        # ----------------------------------------------------------------
-        end = time.perf_counter()
-        times.append(end - start)
-
-    times = np.array(times)
-    p99 = float(np.percentile(times, 99))
-    avg = float(times.mean())
-    print(f"Average latency: {avg:.6f}s, p99: {p99:.6f}s")
-
-    # p99 gate for CI
-    threshold_str = os.getenv("P99_THRESHOLD", "").strip()
-    if threshold_str:
-        try:
-            threshold = float(threshold_str)
-        except ValueError:
-            print(f"Invalid P99_THRESHOLD value: {threshold_str}", file=sys.stderr)
-            sys.exit(1)
-
-        if p99 > threshold:
-            print(
-                f"p99 gate FAILED: {p99:.6f}s > threshold {threshold:.6f}s",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        else:
-            print(
-                f"p99 gate PASSED: {p99:.6f}s <= threshold {threshold:.6f}s",
-            )
-
+def test_func():
+    # Benchmark the specific forecasting method
+    sim_instance.forecast_signal(0.5, 100.0)
 
 if __name__ == "__main__":
-    run_benchmark()
+    # Run 1000 loops, repeat 10 times to get stable p99
+    times = timeit.repeat(test_func, number=1000, repeat=10)
+    # Calculate time per call (timeit returns total time for 'number' executions)
+    per_call_times = [t / 1000 for t in times]
+    p99 = np.percentile(per_call_times, 99)
+
+    print(f"p99 Latency: {p99:.6f} seconds")
+
+    # Strict Gate: 500ms (0.5 seconds)
+    if p99 > 0.5:
+        raise ValueError(f'Performance Failure: p99 latency {p99:.6f}s exceeds 0.5s limit.')
+    print("Performance Check Passed.")
